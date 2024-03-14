@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-//using Iptables;
 using System.Diagnostics;
 
 namespace Plugin_forge
@@ -45,6 +44,7 @@ namespace Plugin_forge
         }
 
 
+
 		// Esta função define a regra para aceitar conexoes ssh de entrada de qualquer ip
 		public void AllowSshIn()
 		{
@@ -62,16 +62,41 @@ namespace Plugin_forge
 
 
 
-		/*
+        /*
 		função para apagar regra especifica com base o numero
 		(NOTA: No iptables as regras são numeradas, se uma regras for apagada todas as
 		outras na sequencia baixam uma posição na lista)		
 		*/
-		public void DeleteRuleNumber(string rule_number)
-		{
-			ExecuteCommand($"sudo iptables -D INPUT {rule_number}");
-			ExecuteCommand($"sudo /sbin/iptables-save");
-		}
+        public void DeleteRuleNumber(string rule_number)
+        {
+            ExecuteCommand($"sudo iptables -D INPUT {rule_number}");
+            ExecuteCommand($"sudo /sbin/iptables-save");
+        }
+
+
+
+        //--------------------------------------------------------------------------------------------------
+        //-------------------------------------- LXC SECTION -----------------------------------------------
+        //--------------------------------------------------------------------------------------------------
+        public void AddRuleLXC(string container_name, string rule)
+        {
+            ExecuteCommand($"lxc exec {container_name} -- sudo iptables -A {rule}"); 
+            ExecuteCommand($"lxc exec {container_name} -- sudo /sbin/iptables-save");
+        }
+
+
+
+
+
+
+        //--------------------------------------------------------------------------------------------------
+        //-------------------------------------- LXC SECTION -----------------------------------------------
+        //--------------------------------------------------------------------------------------------------
+
+
+
+
+        
 
 
 
