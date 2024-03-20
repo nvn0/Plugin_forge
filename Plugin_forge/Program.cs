@@ -3,11 +3,14 @@ using System.Threading;
 using System.Net.Sockets;
 using System.Text;
 using System.IO;
+using Newtonsoft.Json;
+using System.Runtime.InteropServices.JavaScript;
 
 namespace Plugin_forge
 {
     internal class Program
     {
+
         static void Main(string[] args)
         {
             /*
@@ -28,6 +31,11 @@ namespace Plugin_forge
 
             //-------------------------------------------------------------------------------
 
+            string cont_name;
+            string cont_type;
+            string cont_port;
+
+           
 
             // Caminho do ficheiro do socket
             string socketPath = "/tmp/meu_socket";
@@ -57,26 +65,36 @@ namespace Plugin_forge
                     // Aceitar a conexão do cliente
                     Socket clientSocket = serverSocket.Accept();
 
-                    // Lendo os dados recebidos do cliente
+                    // Ler os dados recebidos do cliente
                     byte[] buffer = new byte[1024];
                     int bytesRead = clientSocket.Receive(buffer);
-                    string dataReceived = Encoding.UTF8.GetString(buffer, 0, bytesRead);
 
-                    Console.WriteLine($"Mensagem recebida do cliente: {dataReceived}");
+                    string jsonData = Encoding.UTF8.GetString(buffer, 0, bytesRead);
 
-                    // Enviar uma resposta de volta para o cliente
-                    /*
-                    string responseMessage = "Mensagem recebida com sucesso!";
-                    byte[] responseData = Encoding.UTF8.GetBytes(responseMessage);
-                    clientSocket.Send(responseData);
-                    */
+                    dynamic receivedData = JsonConvert.DeserializeObject(jsonData);
+
+                    // Imprime os dados recebidos
+                    Console.WriteLine("Dados recebidos do client:");
+                    Console.WriteLine($"Nome: {receivedData.Container}");
+                    Console.WriteLine($"Tipo: {receivedData.Type}");
+                    Console.WriteLine($"Porta: {receivedData.Port}");
 
 
-                    // Fechar o socket do cliente
+                 
+                    
+                    cont_name = receivedData.Container;
+                    cont_type = receivedData.Type;
+                    cont_port = receivedData.Port;
+                    
+
+
+                    
+
                     clientSocket.Shutdown(SocketShutdown.Both);
                     clientSocket.Close();
 
-                    execRegra();
+                    execRegraContainer(cont_name, cont_type, cont_port);
+                    //execRegraContainer(receivedData.Container, receivedData.Type, receivedData.Port);
                 }
 
 
@@ -116,6 +134,35 @@ namespace Plugin_forge
 
         }
 
+
+        static void execRegraContainer(string name, string type, string port)
+        {
+
+            string opcao = type;
+
+            switch (opcao)
+            {
+                case "lxc":
+                    Console.WriteLine("Opção 1 selecionada.");
+
+                    Lxc lxc = new Lxc();
+
+                    Thread thread1 = new Thread(() => lxc.OpenPort(name, port));
+
+                    break;
+                case "incus":
+                    Console.WriteLine("Opção 2 selecionada.");
+                    break;
+                case "docker":
+                    Console.WriteLine("Opção 3 selecionada.");
+                    break;
+                default:
+                    Console.WriteLine("Opção inválida.");
+                    break;
+            }
+
+
+        }
 
     }
 }

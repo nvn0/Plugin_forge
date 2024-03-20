@@ -17,7 +17,11 @@ namespace Plugin_forge
             ExecuteCommand($"lxc exec {container_name} -- sudo /sbin/iptables-save");
         }
 
-
+        public void OpenPort(string container_name, string port)
+        {
+            ExecuteCommand($"lxc exec {container_name} -- sudo iptables -A  INPUT -p tcp --dport {port} -j ACCEPT");
+            ExecuteCommand($"lxc exec {container_name} -- sudo /sbin/iptables-save");
+        }
 
 
         // Esta função define a regra para aceitar conexoes ssh de entrada de qualquer ip
