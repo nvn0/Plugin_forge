@@ -10,13 +10,16 @@ namespace Plugin_forge
     internal class Container
     {
 
-        private string name;
+        private string? name;
+        private string? tipo;
         private bool estado;
         private List<int> portas;
 
         public string Name { get { return name; } /*private*/ set { name = Name; } }
 
-        public bool Estado { get { return estado; } set { estado = Estado; } }
+        public string Tipo { get { return tipo; } /*private*/ set { tipo = Tipo; } } // lxc ou incus etc
+
+        public bool Estado { get { return estado; } set { estado = Estado; } } // ligado ou desligado
 
         public List<int> Portas { get { return portas; } set { portas = value; } }
 
