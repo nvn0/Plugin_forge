@@ -6,7 +6,7 @@ using System.IO;
 using Newtonsoft.Json;
 using System.Runtime.InteropServices.JavaScript;
 
-namespace Plugin_forge
+namespace PortController
 {
     internal class Program
     {
@@ -35,7 +35,7 @@ namespace Plugin_forge
             string cont_type;
             string cont_port;
 
-           
+
 
             // Caminho do ficheiro do socket
             string socketPath = "/tmp/meu_socket";
@@ -80,15 +80,15 @@ namespace Plugin_forge
                     Console.WriteLine($"Porta: {receivedData.Port}");
 
 
-                 
-                    
+
+
                     cont_name = receivedData.Container;
                     cont_type = receivedData.Type;
                     cont_port = receivedData.Port;
-                    
 
 
-                    
+
+
 
                     clientSocket.Shutdown(SocketShutdown.Both);
                     clientSocket.Close();

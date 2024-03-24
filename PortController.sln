@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.9.34622.214
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Plugin_forge", "Plugin_forge\Plugin_forge.csproj", "{C140C4FD-629B-4E22-A404-5F69C85E38F5}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PortController", "PortController\PortController.csproj", "{17390FBA-834A-44C3-B795-58C2E718E83B}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -11,15 +11,15 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{C140C4FD-629B-4E22-A404-5F69C85E38F5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{C140C4FD-629B-4E22-A404-5F69C85E38F5}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{C140C4FD-629B-4E22-A404-5F69C85E38F5}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{C140C4FD-629B-4E22-A404-5F69C85E38F5}.Release|Any CPU.Build.0 = Release|Any CPU
+		{17390FBA-834A-44C3-B795-58C2E718E83B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{17390FBA-834A-44C3-B795-58C2E718E83B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{17390FBA-834A-44C3-B795-58C2E718E83B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{17390FBA-834A-44C3-B795-58C2E718E83B}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
-		SolutionGuid = {596D86CF-6B1B-487F-8E31-33218519C75B}
+		SolutionGuid = {025EBBBC-C6E2-4595-833E-6B8A97EA593C}
 	EndGlobalSection
 EndGlobal
