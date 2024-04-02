@@ -10,18 +10,20 @@ namespace PortController
     internal class Container
     {
 
-        private string? name;
+        private string? nome;
         private string? tipo;
         private bool estado;
-        private List<int> portas;
+        private List<string>? portas;
+        //private int[] portas;
 
-        public string Name { get { return name; } /*private*/ set { name = Name; } }
+        public string Nome { get { return nome; } /*private*/ set { nome = Nome; } }
 
         public string Tipo { get { return tipo; } /*private*/ set { tipo = Tipo; } } // lxc ou incus etc
 
         public bool Estado { get { return estado; } set { estado = Estado; } } // ligado ou desligado
 
-        public List<int> Portas { get { return portas; } set { portas = value; } }
+        public List<string> Portas { get { return portas; } set { portas = value; } }
+        //public int[] Portas { get { return portas; } set { portas = value; } }
 
         
 
@@ -64,6 +66,9 @@ namespace PortController
 
 
         }
+
+
+
 
 
 

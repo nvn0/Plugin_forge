@@ -8,7 +8,7 @@ using System.Runtime.InteropServices.JavaScript;
 
 namespace PortController
 {
-    internal class Program
+    public class Program
     {
 
         static void Main(string[] args)
@@ -31,11 +31,6 @@ namespace PortController
 
             //-------------------------------------------------------------------------------
 
-            string cont_name;
-            string cont_type;
-            string cont_port;
-
-
 
             // Caminho do ficheiro do socket
             string socketPath = "/tmp/meu_socket";
@@ -46,7 +41,7 @@ namespace PortController
                 //File.Delete(socketPath);
             }
 
-            // Criando o socket Unix
+            // Criar o socket Unix
             Socket serverSocket = new Socket(AddressFamily.Unix, SocketType.Stream, ProtocolType.Unspecified);
 
             try
@@ -54,7 +49,7 @@ namespace PortController
                 // ligar o socket à unix socket
                 serverSocket.Bind(new UnixDomainSocketEndPoint(socketPath));
 
-                // Definindo o tamanho máximo da fila de conexão pendentes
+                // Definir o tamanho máximo da fila de conexão pendentes
                 serverSocket.Listen(5);
 
                 Console.WriteLine("À espera de pedidos...");
@@ -65,36 +60,15 @@ namespace PortController
                     // Aceitar a conexão do cliente
                     Socket clientSocket = serverSocket.Accept();
 
-                    // Ler os dados recebidos do cliente
-                    byte[] buffer = new byte[1024];
-                    int bytesRead = clientSocket.Receive(buffer);
+                    SocketData data = new SocketData();
 
-                    string jsonData = Encoding.UTF8.GetString(buffer, 0, bytesRead);
+                    //Thread thread = new Thread(() => data.ReceberJson(clientSocket));
 
-                    dynamic receivedData = JsonConvert.DeserializeObject(jsonData);
-
-                    // Imprime os dados recebidos
-                    Console.WriteLine("Dados recebidos do client:");
-                    Console.WriteLine($"Nome: {receivedData.Container}");
-                    Console.WriteLine($"Tipo: {receivedData.Type}");
-                    Console.WriteLine($"Porta: {receivedData.Port}");
+                    data.ReceberJson(clientSocket);
 
 
 
-
-                    cont_name = receivedData.Container;
-                    cont_type = receivedData.Type;
-                    cont_port = receivedData.Port;
-
-
-
-
-
-                    clientSocket.Shutdown(SocketShutdown.Both);
-                    clientSocket.Close();
-
-                    execRegraContainer(cont_name, cont_type, cont_port);
-                    //execRegraContainer(receivedData.Container, receivedData.Type, receivedData.Port);
+                 
                 }
 
 
@@ -135,7 +109,7 @@ namespace PortController
         }
 
 
-        static void execRegraContainer(string name, string type, string port)
+        public static void execRegraContainer(string name, string type, string action, string port)
         {
 
             string opcao = type;
@@ -147,7 +121,7 @@ namespace PortController
 
                     Lxc lxc = new Lxc();
 
-                    Thread thread1 = new Thread(() => lxc.OpenPort(name, port));
+                    lxc.OpenPort(name, port);
 
                     break;
                 case "incus":
@@ -157,8 +131,60 @@ namespace PortController
                     Console.WriteLine("Opção 3 selecionada.");
                     break;
                 default:
-                    Console.WriteLine("Opção inválida.");
+                    Console.WriteLine("Opção inválida. (execRegraContainer)");
                     break;
+            }
+
+
+        }
+
+
+        public static string[] GetInfoPortsContainer(dynamic name, dynamic type)
+        {
+
+            string opcao = type;
+
+            switch (opcao)
+            {
+                case "lxc":
+                    Console.WriteLine("Opção 1 selecionada. (getInfo)");
+
+                    Lxc lxc = new Lxc{ Nome = name, Tipo = type };
+
+                    //Thread thread1 = new Thread(() => lxc.GetInfo(name));
+
+                    //return 
+
+                    //Console.WriteLine(lxc.GetInfo(name));
+
+                    //Console.WriteLine(lxc.GetPorts());
+                    Console.WriteLine(lxc.GetPorts2());
+                    string[] array = lxc.GetPorts2().ToArray();
+
+                    return array;
+
+                    
+
+                    break;
+                    
+                case "incus":
+                    Console.WriteLine("Opção 2 selecionada.");
+                    string[] array2 = { "1" };
+                    return array2;
+
+                    break;
+                case "docker":
+                    Console.WriteLine("Opção 3 selecionada.");
+
+                    string[] array3 = { "1" };
+                    return array3;
+                    break;
+                default:
+                    Console.WriteLine("Opção inválida. (GetInfoPortsContainer)");
+                    string[] array4 = { "1" };
+                    return array4;
+                    break;
+                    
             }
 
 
