@@ -62,9 +62,10 @@ namespace PortController
 
                     SocketData data = new SocketData();
 
-                    //Thread thread = new Thread(() => data.ReceberJson(clientSocket));
+                    Thread thread = new Thread(() => data.ReceberJson(clientSocket));
+                    thread.Start();
 
-                    data.ReceberJson(clientSocket);
+                    //data.ReceberJson(clientSocket);
 
 
 
