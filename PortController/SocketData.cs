@@ -59,7 +59,7 @@ namespace PortController
             {
                 Console.WriteLine("receber json - getinfo");
                 string[] ports;
-                ports = Program.GetInfoPortsContainer(receivedData.Container, receivedData.Type);
+                ports = GetInfoPortsContainer(receivedData.Container, receivedData.Type);
                 //ports = Program.GetInfoPortsContainer("merda", "caralho");
 
                 dynamic responseData = new
@@ -77,14 +77,100 @@ namespace PortController
                 clientSocket.Shutdown(SocketShutdown.Both);
                 clientSocket.Close();
 
-                Program.execRegraContainer(receivedData.Container, receivedData.Type, receivedData.Action, receivedData.Port);
+                execRegraContainer(receivedData.Container, receivedData.Type, receivedData.Action, receivedData.Port);
             }
 
             clientSocket.Close();
         }
-        
 
 
+        // --------------------------------------------------------
+
+        private static void execRegraContainer(dynamic name, dynamic type, dynamic action, dynamic port)
+        {
+
+            string opcao = type;
+
+            switch (opcao)
+            {
+                case "lxc":
+                    Console.WriteLine("Opção 1 selecionada.");
+
+                    Lxc lxc = new Lxc();
+
+                    //lxc.OpenPort(name, port);
+
+                    string nomec = name;
+                    Console.WriteLine(nomec);
+                    lxc.ApiCommand(nomec);
+
+
+                    break;
+                case "incus":
+                    Console.WriteLine("Opção 2 selecionada.");
+                    break;
+                case "docker":
+                    Console.WriteLine("Opção 3 selecionada.");
+                    break;
+                default:
+                    Console.WriteLine("Opção inválida. (execRegraContainer)");
+                    break;
+            }
+
+
+        }
+
+
+        private static string[] GetInfoPortsContainer(dynamic name, dynamic type)
+        {
+
+            string opcao = type;
+
+            switch (opcao)
+            {
+                case "lxc":
+                    Console.WriteLine("Opção 1 selecionada. (getInfo)");
+
+                    Lxc lxc = new Lxc { Nome = name, Tipo = type };
+
+                    //Thread thread1 = new Thread(() => lxc.GetInfo(name));
+
+                    //return 
+
+                    //Console.WriteLine(lxc.GetInfo(name));
+
+                    //Console.WriteLine(lxc.GetPorts());
+                    Console.WriteLine(lxc.GetPorts2());
+                    string[] array = lxc.GetPorts2().ToArray();
+
+                    return array;
+
+
+
+                    break;
+
+                case "incus":
+                    Console.WriteLine("Opção 2 selecionada.");
+                    string[] array2 = { "1" };
+                    return array2;
+
+                    break;
+                case "docker":
+                    Console.WriteLine("Opção 3 selecionada.");
+
+                    string[] array3 = { "1" };
+                    return array3;
+                    break;
+                default:
+                    Console.WriteLine("Opção inválida. (GetInfoPortsContainer)");
+                    string[] array4 = { "1" };
+                    return array4;
+                    break;
+
+            }
+
+
+        }
 
     }
 }

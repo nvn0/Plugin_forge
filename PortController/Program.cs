@@ -87,14 +87,10 @@ namespace PortController
 
 
 
-
-
-
-
-
-
         }
 
+
+        //------------------------------------- Executar comandos--------------------------------
 
         static void execRegra()
         {
@@ -110,7 +106,7 @@ namespace PortController
         }
 
 
-        public static void execRegraContainer(string name, string type, string action, string port)
+        public static void execRegraContainer(dynamic name, dynamic type, dynamic action, dynamic port)
         {
 
             string opcao = type;
@@ -122,7 +118,9 @@ namespace PortController
 
                     Lxc lxc = new Lxc();
 
-                    lxc.OpenPort(name, port);
+                    //lxc.OpenPort(name, port);
+                    lxc.ApiCommand(name);
+
 
                     break;
                 case "incus":
