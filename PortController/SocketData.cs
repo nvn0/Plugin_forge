@@ -7,6 +7,7 @@ using System.Threading;
 using System.Xml.Linq;
 using System.Runtime.InteropServices.JavaScript;
 using System.Net.Sockets;
+using System.ComponentModel.Design;
 
 
 namespace PortController
@@ -19,11 +20,13 @@ namespace PortController
         private string cont_name;
         private string cont_type;
         private string cont_action;
+        private string cont_fw;
         private string cont_port;
 
         public string Name { get { return cont_name; } /*private*/ set { cont_name = Name; } }
         public string Type { get { return cont_type; } /*private*/ set { cont_type = Type; } }
         public string Action { get { return cont_action; } /*private*/ set { cont_action = Action; } }
+        public string Fwtype { get { return cont_fw; } /*private*/ set { cont_fw = Fwtype; } }
         public string Port { get { return cont_port; } /*private*/ set { cont_port = Port; } }
 
 
@@ -48,8 +51,10 @@ namespace PortController
             Console.WriteLine("Dados recebidos do client:");
             Console.WriteLine($"Nome: {receivedData.Container}");
             Console.WriteLine($"Tipo: {receivedData.Type}");
+            Console.WriteLine($"Firewall: {receivedData.Fw}");
             Console.WriteLine($"Ação: {receivedData.Action}");
             Console.WriteLine($"Porta: {receivedData.Port}");
+            Console.WriteLine($"Rule: {receivedData.Rule}");
 
            Console.WriteLine(receivedData.Type);
 
@@ -77,7 +82,7 @@ namespace PortController
                 clientSocket.Shutdown(SocketShutdown.Both);
                 clientSocket.Close();
 
-                execRegraContainer(receivedData.Container, receivedData.Type, receivedData.Action, receivedData.Port);
+                execRegraContainer(receivedData.Container, receivedData.Type, receivedData.Action, receivedData.Fw, receivedData.Port, receivedData.Rule);
             }
 
             clientSocket.Close();
@@ -86,24 +91,40 @@ namespace PortController
 
         // --------------------------------------------------------
 
-        private static void execRegraContainer(dynamic name, dynamic type, dynamic action, dynamic port)
+        private static void execRegraContainer(dynamic name, dynamic type, dynamic action, dynamic firewall, dynamic port, dynamic rule)
         {
+            string sname = name;
+            string stype = type;
+            string sfw = firewall;
+            string sport = port;
+            string srule = rule;
 
-            string opcao = type;
-
-            switch (opcao)
+            switch (stype)
             {
                 case "lxc":
                     Console.WriteLine("Opção 1 selecionada.");
 
                     Lxc lxc = new Lxc();
 
-                    //lxc.OpenPort(name, port);
+                    /*
+                    if (fwt == "ipt" && action)
+                    {
+                        lxc.OpenPort(name, port);
+                    }   
+                    else if (fwt == "nft")
+                    {
+                        lxc.NFOpenPort(name, port);
+                    }
+                    */
 
+                    lxc.AddRule(sname, action, sfw, sport, rule);
+
+
+                    /*
                     string nomec = name;
                     Console.WriteLine(nomec);
                     lxc.ApiCommand(nomec);
-
+                    */
 
                     break;
                 case "incus":
@@ -131,11 +152,17 @@ namespace PortController
                 case "lxc":
                     Console.WriteLine("Opção 1 selecionada. (getInfo)");
 
+                    /*
+                    string nomec = name;
+                    string typec = type;
+
+                    Lxc lxc = new Lxc(nomec, typec);
+                    */
+
                     Lxc lxc = new Lxc { Nome = name, Tipo = type };
+                    
 
-                    //Thread thread1 = new Thread(() => lxc.GetInfo(name));
-
-                    //return 
+                   
 
                     //Console.WriteLine(lxc.GetInfo(name));
 

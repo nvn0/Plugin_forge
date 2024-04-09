@@ -92,6 +92,8 @@ namespace PortController
 
         //------------------------------------- Executar comandos--------------------------------
 
+
+        /*
         static void execRegra()
         {
 
@@ -186,8 +188,8 @@ namespace PortController
                     
             }
 
-
+        
         }
-
+        */
     }
 }

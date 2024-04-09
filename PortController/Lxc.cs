@@ -4,21 +4,40 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Runtime.InteropServices;
+using System.Xml.Linq;
 
 namespace PortController
 {
     internal class Lxc:Container
     {
 
+        public Lxc()
+        { 
+        
+        
+        }
+
+        public Lxc(string N, string t)
+        {
+            Nome = N;
+            Tipo = t;
+
+        }
+
+        public Lxc(string N, string t, bool estado, List<string> p)
+        {
+            Nome = N;
+            Tipo = t;
+            Estado = estado;
+            Portas = p;
+
+        }
+
         //---------------------------------------------------------------------------------------------------------
         //                                                      IPTABLES
         //---------------------------------------------------------------------------------------------------------
 
-        public void AddRule(string container_name, string rule)
-        {
-            ExecuteCommand($"lxc exec {container_name} -- sudo iptables -A {rule}");
-            ExecuteCommand($"lxc exec {container_name} -- sudo /sbin/iptables-save");
-        }
+      
 
         public void OpenPort(string container_name, string port)
         {
@@ -64,9 +83,47 @@ namespace PortController
         }
 
 
+        //---------------------------------------------------------------------------------------------------------
+        //                                                      FireWall 1 command
+        //---------------------------------------------------------------------------------------------------------
 
 
 
+       
+
+        public void AddRule(string container_name, string action, string firewall, string port, string rule = "")
+        {
+
+           
+
+
+            if (firewall == "ipt" && action == "OpenPort")
+            {
+                OpenPort(container_name, port);
+            }
+            else if (firewall == "ipt" && action == "ClosePort")
+            {
+                ClosePort(container_name, port);
+            }
+            else if (firewall == "nft" && action == "OpenPort")
+            {
+                NFOpenPort(container_name, port);
+            }
+            else if (firewall == "nft" && action == "ClosePort")
+            {
+                NFClosePort(container_name, port);
+            }
+            else if (firewall == "ipt" && action == "ExecCmd" && rule != "")
+            {
+                ExecuteCommand($"lxc exec {container_name} -- sudo iptables -A {rule}");
+                ExecuteCommand($"lxc exec {container_name} -- sudo /sbin/iptables-save");
+            }
+            else if (firewall == "nft" && action == "ExecCmd" && rule != "")
+            {
+
+            }
+
+        }
 
 
 
@@ -95,11 +152,11 @@ namespace PortController
         public List<string> GetPorts()
         {
             //string output = ExecuteCommand($"lxc exec {this.Name} -- sudo iptables -L");
-            string output = ExecuteCommand($"lxc exec {this.Nome} -- sudo netstat -tulpn | grep LISTEN | awk '{{print $4}}' | cut -f2 -d':' ");
+            string output = ExecuteCommand($"lxc exec {Nome} -- sudo netstat -tulpn | grep LISTEN | awk '{{print $4}}' | cut -f2 -d':' ");
            
             string[] linhasArray = output.Split(new[] { '\n', '\r' }, StringSplitOptions.RemoveEmptyEntries);
 
-            this.Portas = new List<string>(linhasArray);
+            Portas = new List<string>(linhasArray);
 
             return Portas;
 
@@ -141,7 +198,7 @@ namespace PortController
         //                                                      API - LXC
         //---------------------------------------------------------------------------------------------------------
 
-
+        /*
 
         // Importa a função lxc_attach_run_command da biblioteca compartilhada do LXC
         [DllImport("liblxc", CallingConvention = CallingConvention.Cdecl)]
@@ -171,7 +228,7 @@ namespace PortController
 
 
         }
-
+        */
 
 
 
