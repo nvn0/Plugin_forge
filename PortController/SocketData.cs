@@ -53,23 +53,28 @@ namespace PortController
             Console.WriteLine($"Tipo: {receivedData.Type}");
             Console.WriteLine($"Firewall: {receivedData.Fw}");
             Console.WriteLine($"Ação: {receivedData.Action}");
+            Console.WriteLine($"Protocol: {receivedData.Protocol}");
             Console.WriteLine($"Porta: {receivedData.Port}");
             Console.WriteLine($"Rule: {receivedData.Rule}");
 
-           Console.WriteLine(receivedData.Type);
+           
 
 
 
             if (receivedData.Action == "GetInfo")
             {
                 Console.WriteLine("receber json - getinfo");
+
                 string[] ports;
+                string estado;
+
                 ports = GetInfoPortsContainer(receivedData.Container, receivedData.Type);
-                //ports = Program.GetInfoPortsContainer("merda", "caralho");
+                estado = GetStateCont(receivedData.Container, receivedData.Type);
 
                 dynamic responseData = new
                 {
                     Status = "Sucesso",
+                    Estado = estado,
                     Ports = ports
                 };
 
@@ -82,7 +87,7 @@ namespace PortController
                 clientSocket.Shutdown(SocketShutdown.Both);
                 clientSocket.Close();
 
-                execRegraContainer(receivedData.Container, receivedData.Type, receivedData.Action, receivedData.Fw, receivedData.Port, receivedData.Rule);
+                execRegraContainer(receivedData.Container, receivedData.Type, receivedData.Action, receivedData.Fw, receivedData.Protocol, receivedData.Port, receivedData.Rule);
             }
 
             clientSocket.Close();
@@ -91,11 +96,12 @@ namespace PortController
 
         // --------------------------------------------------------
 
-        private static void execRegraContainer(dynamic name, dynamic type, dynamic action, dynamic firewall, dynamic port, dynamic rule)
+        private static void execRegraContainer(dynamic name, dynamic type, dynamic action, dynamic firewall, dynamic protocol, dynamic port, dynamic rule)
         {
             string sname = name;
             string stype = type;
             string sfw = firewall;
+            string sprotocol = protocol;
             string sport = port;
             string srule = rule;
 
@@ -117,7 +123,7 @@ namespace PortController
                     }
                     */
 
-                    lxc.AddRule(sname, action, sfw, sport, rule);
+                    lxc.AddRule(sname, action, sfw, sprotocol, sport, srule);
 
 
                     /*
@@ -141,6 +147,43 @@ namespace PortController
 
         }
 
+        private static string GetStateCont(dynamic name, dynamic type)
+        {
+            string sname = name;
+            string stype = type;
+
+            switch (stype)
+            {
+                case "lxc":
+                    Console.WriteLine("Opção 3 selecionada.");
+                       
+                    Lxc lxc = new Lxc();
+
+                    bool state = lxc.GetState(sname);
+
+                    if (state == true)
+                    {
+                        return $"{sname} is running";
+                    }
+                    else
+                    {
+                        return $"{sname} is down";
+                    }
+
+                    break;
+                case "incus":
+                    return " ";
+
+                    break;
+                default:
+                    Console.WriteLine("Opção inválida. (execRegraContainer)");
+                    return " ";
+                    break;
+            }
+
+
+
+        }
 
         private static string[] GetInfoPortsContainer(dynamic name, dynamic type)
         {

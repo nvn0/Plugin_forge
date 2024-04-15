@@ -39,15 +39,15 @@ namespace PortController
 
       
 
-        public void OpenPort(string container_name, string port)
+        public void OpenPort(string container_name, string protocol, string port)
         {
-            ExecuteCommand($"lxc exec {container_name} -- sudo iptables -A  INPUT -p tcp --dport {port} -j ACCEPT");
+            ExecuteCommand($"lxc exec {container_name} -- sudo iptables -A  INPUT -p {protocol} --dport {port} -j ACCEPT");
             ExecuteCommand($"lxc exec {container_name} -- sudo /sbin/iptables-save");
         }
 
-        public void ClosePort(string container_name, string port)
+        public void ClosePort(string container_name, string protocol, string port)
         {
-            ExecuteCommand($"lxc exec {container_name} -- sudo iptables -A  INPUT -p tcp --dport {port} -j DROP");
+            ExecuteCommand($"lxc exec {container_name} -- sudo iptables -A  INPUT -p {protocol} --dport {port} -j DROP");
             ExecuteCommand($"lxc exec {container_name} -- sudo /sbin/iptables-save");
         }
 
@@ -68,17 +68,17 @@ namespace PortController
 
 
 
-        public void NFOpenPort(string container_name, string port) 
+        public void NFOpenPort(string container_name, string protocol, string port) 
         {
-            ExecuteCommand($"lxc exec {container_name} --sudo add rule inet filter input tcp dport {port} accept");
+            ExecuteCommand($"lxc exec {container_name} --sudo add rule inet filter input {protocol} dport {port} accept");
 
 
         }
 
 
-        public void NFClosePort(string container_name, string port)
+        public void NFClosePort(string container_name, string protocol, string port)
         {
-            ExecuteCommand($"lxc exec {container_name} --sudo add rule inet filter input tcp dport {port} drop");
+            ExecuteCommand($"lxc exec {container_name} --sudo add rule inet filter input {protocol} dport {port} drop");
 
         }
 
@@ -91,7 +91,7 @@ namespace PortController
 
        
 
-        public void AddRule(string container_name, string action, string firewall, string port, string rule = "")
+        public void AddRule(string container_name, string action, string firewall, string protocol, string port, string rule = "")
         {
 
            
@@ -99,19 +99,19 @@ namespace PortController
 
             if (firewall == "ipt" && action == "OpenPort")
             {
-                OpenPort(container_name, port);
+                OpenPort(container_name, protocol,port);
             }
             else if (firewall == "ipt" && action == "ClosePort")
             {
-                ClosePort(container_name, port);
+                ClosePort(container_name, protocol, port);
             }
             else if (firewall == "nft" && action == "OpenPort")
             {
-                NFOpenPort(container_name, port);
+                NFOpenPort(container_name, protocol, port);
             }
             else if (firewall == "nft" && action == "ClosePort")
             {
-                NFClosePort(container_name, port);
+                NFClosePort(container_name, protocol, port);
             }
             else if (firewall == "ipt" && action == "ExecCmd" && rule != "")
             {
@@ -139,7 +139,19 @@ namespace PortController
 
         }
 
+        public bool GetState(string container_name)
+        {
+            string output = ExecuteCommand($"lxc exec {container_name} -- uname -r");
 
+            if (output != " ")
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
         /*
         public string GetInfo(Lxc c)
         {
