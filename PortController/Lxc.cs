@@ -41,22 +41,22 @@ namespace PortController
 
         public void OpenPort(string container_name, string protocol, string port)
         {
-            ExecuteCommand($"lxc exec {container_name} -- sudo iptables -A  INPUT -p {protocol} --dport {port} -j ACCEPT");
-            ExecuteCommand($"lxc exec {container_name} -- sudo /sbin/iptables-save");
+            ExecuteCommand($"lxc exec {container_name} -- sudo iptables -A  INPUT -p {protocol} --dport {port} -j ACCEPT && sudo /sbin/iptables-save");
+            //ExecuteCommand($"lxc exec {container_name} -- sudo /sbin/iptables-save");
         }
 
         public void ClosePort(string container_name, string protocol, string port)
         {
-            ExecuteCommand($"lxc exec {container_name} -- sudo iptables -A  INPUT -p {protocol} --dport {port} -j DROP");
-            ExecuteCommand($"lxc exec {container_name} -- sudo /sbin/iptables-save");
+            ExecuteCommand($"lxc exec {container_name} -- sudo iptables -A  INPUT -p {protocol} --dport {port} -j DROP && sudo /sbin/iptables-save");
+            //ExecuteCommand($"lxc exec {container_name} -- sudo /sbin/iptables-save");
         }
 
 
         // Esta função define a regra para aceitar conexoes ssh de entrada de qualquer ip
         public void AllowSshIn(string container_name)
         {
-            ExecuteCommand($"lxc exec {container_name} -- sudo iptables -I INPUT -p tcp --dport 22 -j ACCEPT");
-            ExecuteCommand($"lxc exec {container_name} -- sudo /sbin/iptables-save");
+            ExecuteCommand($"lxc exec {container_name} -- sudo iptables -I INPUT -p tcp --dport 22 -j ACCEPT && sudo /sbin/iptables-save");
+            //ExecuteCommand($"lxc exec {container_name} -- sudo /sbin/iptables-save");
         }
 
         
@@ -115,8 +115,8 @@ namespace PortController
             }
             else if (firewall == "ipt" && action == "ExecCmd" && rule != "")
             {
-                ExecuteCommand($"lxc exec {container_name} -- sudo iptables -A {rule}");
-                ExecuteCommand($"lxc exec {container_name} -- sudo /sbin/iptables-save");
+                ExecuteCommand($"lxc exec {container_name} -- sudo iptables -A {rule} && sudo /sbin/iptables-save");
+                //ExecuteCommand($"lxc exec {container_name} -- sudo /sbin/iptables-save");
             }
             else if (firewall == "nft" && action == "ExecCmd" && rule != "")
             {

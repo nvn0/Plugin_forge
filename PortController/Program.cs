@@ -13,32 +13,15 @@ namespace PortController
 
         static void Main(string[] args)
         {
-            /*
-            Console.WriteLine("Hello World!!!!!");
-            string minha_regra = "INPUT -p tcp --dport 22 -j DROP";
-
-            Firewall firewall = new Firewall();
-            //firewall.AddRule(minha_regra);
-
-            Thread thread1 = new Thread(firewall.AllowSshIn);
-
-            thread1.Start();
-            
-
-			//firewall.AllowSshIn();
-            */
-
-
-            //-------------------------------------------------------------------------------
-
+           
 
             // Caminho do ficheiro do socket
             string socketPath = "/tmp/meu_socket";
 
             if (File.Exists(socketPath))
             {
-                Console.WriteLine("O arquivo do socket já existe. Criando um novo...");
-                //File.Delete(socketPath);
+                Console.WriteLine("O arquivo do socket já existe. A criar um novo...");
+                File.Delete(socketPath);
             }
 
             // Criar o socket Unix
@@ -68,8 +51,6 @@ namespace PortController
                     //data.ReceberJson(clientSocket);
 
 
-
-                 
                 }
 
 
@@ -80,7 +61,7 @@ namespace PortController
             }
             finally
             {
-                // Fechar o socket do servidor
+                // Fechar o socket
                 serverSocket.Close();
             }
 
