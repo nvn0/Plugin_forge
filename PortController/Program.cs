@@ -23,7 +23,7 @@ namespace PortController
                 Console.WriteLine("O ficheiro do socket já existe. A criar um novo...");
                 File.Delete(socketPath);
             }
-
+            
             // Criar o socket Unix
             Socket serverSocket = new Socket(AddressFamily.Unix, SocketType.Stream, ProtocolType.Unspecified);
 
@@ -50,9 +50,7 @@ namespace PortController
 
                     //data.ReceberJson(clientSocket);
 
-
                 }
-
 
             }
             catch (Exception ex)

@@ -37,16 +37,28 @@ namespace PortController
 
 
 		// função para de defenir uma regra personalizada
+        /*
         public void AddRule(string rule)
         {
-            ExecuteCommand($"sudo iptables -A {rule}"); // -A para adicionar no fundo da lista ou -I para adicionar ao topo da lista
-			ExecuteCommand($"sudo /sbin/iptables-save");
+            ExecuteCommand($"sudo iptables -A {rule} && \"sudo /sbin/iptables-save"); // -A para adicionar no fundo da lista ou -I para adicionar ao topo da lista
+			//ExecuteCommand($"sudo /sbin/iptables-save");
+        }
+        */
+
+        public void OpenPort(string protocol, string port)
+        {
+            ExecuteCommand($"sudo iptables -A  INPUT -p {protocol} --dport {port} -j ACCEPT && sudo /sbin/iptables-save");
+        }
+
+        public void ClosePort( string protocol, string port)
+        {
+            ExecuteCommand($"sudo iptables -A  INPUT -p {protocol} --dport {port} -j DROP && sudo /sbin/iptables-save");
         }
 
 
 
-		// Esta função define a regra para aceitar conexoes ssh de entrada de qualquer ip
-		public void AllowSshIn()
+        // Esta função define a regra para aceitar conexoes ssh de entrada de qualquer ip
+        public void AllowSshIn()
 		{
 			ExecuteCommand($"sudo iptables -I INPUT -p tcp --dport 22 -j ACCEPT");
 			ExecuteCommand($"sudo /sbin/iptables-save");
@@ -74,33 +86,66 @@ namespace PortController
         }
 
 
+        //---------------------------------------------------------------------------------------------------------
+        //                                                      NFTABLES
+        //---------------------------------------------------------------------------------------------------------
 
-        //--------------------------------------------------------------------------------------------------
-        //-------------------------------------- LXC SECTION -----------------------------------------------
-        //--------------------------------------------------------------------------------------------------
-        public void AddRuleLXC(string container_name, string rule)
+
+
+        public void NFOpenPort(string protocol, string port)
         {
-            ExecuteCommand($"lxc exec {container_name} -- sudo iptables -A {rule}"); 
-            ExecuteCommand($"lxc exec {container_name} -- sudo /sbin/iptables-save");
+            ExecuteCommand($"sudo add rule inet filter input {protocol} dport {port} accept");
+
+
+        }
+
+
+        public void NFClosePort(string protocol, string port)
+        {
+            ExecuteCommand($"sudo add rule inet filter input {protocol} dport {port} drop");
+
+        }
+
+        //-----------------------------------------------------------------------------------------------------------------------------
+
+
+        public void AddRule(string action, string firewall, string protocol, string port, string rule = "")
+        {
+
+
+
+
+            if (firewall == "ipt" && action == "OpenPort")
+            {
+                OpenPort(protocol, port);
+            }
+            else if (firewall == "ipt" && action == "ClosePort")
+            {
+                ClosePort(protocol, port);
+            }
+            else if (firewall == "nft" && action == "OpenPort")
+            {
+                NFOpenPort(protocol, port);
+            }
+            else if (firewall == "nft" && action == "ClosePort")
+            {
+                NFClosePort(protocol, port);
+            }
+            else if (firewall == "ipt" && action == "ExecCmd" && rule != "")
+            {
+                ExecuteCommand($"sudo iptables -A {rule} && sudo /sbin/iptables-save");
+                //ExecuteCommand($"lxc exec {container_name} -- sudo /sbin/iptables-save");
+            }
+            else if (firewall == "nft" && action == "ExecCmd" && rule != "")
+            {
+
+            }
+
         }
 
 
 
-
-
-
-        //--------------------------------------------------------------------------------------------------
-        //-------------------------------------- LXC SECTION -----------------------------------------------
-        //--------------------------------------------------------------------------------------------------
-
-
-
-
-        
-
-
-
-		// função para criar um processo e executar comandos
+        // função para criar um processo e executar comandos
         private string ExecuteCommand(string command)
         {
             try

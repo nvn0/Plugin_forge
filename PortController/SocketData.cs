@@ -82,6 +82,15 @@ namespace PortController
                 byte[] responseBytes = Encoding.UTF8.GetBytes(responseJson);
                 clientSocket.Send(responseBytes);
             }
+            if (receivedData.Type == "host")
+            {
+
+                clientSocket.Shutdown(SocketShutdown.Both);
+                clientSocket.Close();
+
+                execRegra(receivedData.Action, receivedData.Fw, receivedData.Protocol, receivedData.Port, receivedData.Rule);
+
+            }
             else
             {
                 clientSocket.Shutdown(SocketShutdown.Both);
@@ -94,12 +103,32 @@ namespace PortController
         }
 
 
-        // --------------------------------------------------------
+        // -------------------------------------------------------- host --------------------------------------------------------
+
+
+
+        private static void execRegra(dynamic action, dynamic firewall, dynamic protocol, dynamic port, dynamic rule)
+        {
+            string saction = action;
+            string sfw = firewall;
+            string sprotocol = protocol;
+            string sport = port;
+            string srule = rule;
+
+
+            Firewall fw = new Firewall();
+
+            fw.AddRule(saction, sfw, sprotocol, sport, srule);
+
+        }
+
+            // ------------------------------------------------------ Containers -----------------------------------------------------------
 
         private static void execRegraContainer(dynamic name, dynamic type, dynamic action, dynamic firewall, dynamic protocol, dynamic port, dynamic rule)
         {
             string sname = name;
             string stype = type;
+            string saction = action;
             string sfw = firewall;
             string sprotocol = protocol;
             string sport = port;
@@ -135,10 +164,7 @@ namespace PortController
                     break;
                 case "incus":
                     Console.WriteLine("Opção 2 selecionada.");
-                    break;
-                case "docker":
-                    Console.WriteLine("Opção 3 selecionada.");
-                    break;
+                    break;              
                 default:
                     Console.WriteLine("Opção inválida. (execRegraContainer)");
                     break;
