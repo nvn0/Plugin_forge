@@ -16,11 +16,11 @@ namespace PortController
            
 
             // Caminho do ficheiro do socket
-            string socketPath = "/tmp/meu_socket";
+            string socketPath = "/tmp/socket_proj";
 
             if (File.Exists(socketPath))
             {
-                Console.WriteLine("O arquivo do socket já existe. A criar um novo...");
+                Console.WriteLine("O ficheiro do socket já existe. A criar um novo...");
                 File.Delete(socketPath);
             }
 
