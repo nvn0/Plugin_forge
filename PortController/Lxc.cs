@@ -39,9 +39,7 @@ namespace PortController
         }
 
 
-        // Constantes
-        private const string host_ip = "192.168.1.80";
-        private const string bridge_interface = "lxdbr0";
+        
 
 
 

@@ -57,8 +57,9 @@ namespace PortController
             Console.WriteLine($"Firewall: {receivedData.Fw}");
             Console.WriteLine($"Ação: {receivedData.Action}");
             Console.WriteLine($"Protocol: {receivedData.Protocol}");
-            Console.WriteLine($"Container_internal_ip: {receivedData.Container_internal_ip}");
             Console.WriteLine($"Porta: {receivedData.Port}");
+            Console.WriteLine($"Container_internal_ip: {receivedData.Container_internal_ip}");
+            Console.WriteLine($"Container_internal_port: {receivedData.Container_internal_port}");
             Console.WriteLine($"Rule: {receivedData.Rule}");
 
            
@@ -86,13 +87,22 @@ namespace PortController
                 byte[] responseBytes = Encoding.UTF8.GetBytes(responseJson);
                 clientSocket.Send(responseBytes);
             }
-            if (receivedData.Type == "host")
+            if (receivedData.Type == "host" && receivedData.Action != "AddNat")
             {
 
                 clientSocket.Shutdown(SocketShutdown.Both);
                 clientSocket.Close();
 
-                execRegra(receivedData.Action, receivedData.Fw, receivedData.Protocol, receivedData.Container_internal_ip, receivedData.Port, receivedData.Rule);
+                execRegra(receivedData.Action, receivedData.Fw, receivedData.Protocol, receivedData.Port, receivedData.Rule);
+
+            } 
+            if (receivedData.Type == "host" && receivedData.Action == "AddNat")
+            {
+
+                clientSocket.Shutdown(SocketShutdown.Both);
+                clientSocket.Close();
+
+                execRegraNat(receivedData.Fw, receivedData.Protocol, receivedData.Port, receivedData.Container_internal_ip, receivedData.Container_internal_port, receivedData.Rule);
 
             }
             else
@@ -111,23 +121,40 @@ namespace PortController
 
 
 
-        private static void execRegra(dynamic action, dynamic firewall, dynamic protocol, dynamic internal_ip, dynamic port, dynamic rule)
+        private static void execRegra(dynamic action, dynamic firewall, dynamic protocol, dynamic port, dynamic rule)
         {
             string saction = action;
             string sfw = firewall;
-            string sprotocol = protocol;
-            string sinternal_ip = internal_ip;
+            string sprotocol = protocol;      
             string sport = port;
             string srule = rule;
 
 
             Firewall fw = new Firewall();
 
-            fw.AddRule(saction, sfw, sprotocol, sinternal_ip, sport, srule);
+            fw.AddRule(saction, sfw, sprotocol, sport, srule);
 
         }
 
-            // ------------------------------------------------------ Containers -----------------------------------------------------------
+
+
+        private static void execRegraNat(dynamic firewall, dynamic protocol, dynamic port, dynamic cont_internal_ip, dynamic container_internal_port, dynamic rule)
+        {
+            //string saction = action;
+            string sfw = firewall;
+            string sprotocol = protocol;
+            string sport = port;
+            string scont_internal_ip = cont_internal_ip;
+            string scont_internal_port = container_internal_port;
+            string srule = rule;
+
+
+            Firewall fw = new Firewall();
+
+            fw.AddRuleNat(sfw, sprotocol, sport, scont_internal_ip, scont_internal_port, srule);
+
+        }
+        // ------------------------------------------------------ Containers -----------------------------------------------------------
 
         private static void execRegraContainer(dynamic name, dynamic type, dynamic action, dynamic firewall, dynamic protocol, dynamic port, dynamic rule)
         {

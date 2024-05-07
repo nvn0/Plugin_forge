@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Diagnostics;
 using System.Net.Sockets;
+using System.Runtime.InteropServices.JavaScript;
 
 namespace PortController
 {
@@ -13,7 +14,7 @@ namespace PortController
 
         // Esta class interage diretamente no sistema host
 
-		/*
+        /*
 			IPTables é constituido por três tabelas (Filter table, Nat Table e Mangle Table)
 
 
@@ -33,12 +34,14 @@ namespace PortController
 
 		 */
 
+        // Constantes
+        private const string host_ip = "192.168.1.80";
+        private const string bridge_interface = "lxdbr0";
 
 
 
 
-
-		// função para de defenir uma regra personalizada
+        // função para de defenir uma regra personalizada
         /*
         public void AddRule(string rule)
         {
@@ -49,12 +52,12 @@ namespace PortController
 
         public void OpenPort(string protocol, string port)
         {
-            ExecuteCommand($"sudo iptables -A  INPUT -p {protocol} --dport {port} -j ACCEPT && sudo /sbin/iptables-save");
+            ExecuteCommand($"doas iptables -A  INPUT -p {protocol} --dport {port} -j ACCEPT && doas /sbin/iptables-save");
         }
 
         public void ClosePort( string protocol, string port)
         {
-            ExecuteCommand($"sudo iptables -A  INPUT -p {protocol} --dport {port} -j DROP && sudo /sbin/iptables-save");
+            ExecuteCommand($"doas iptables -A  INPUT -p {protocol} --dport {port} -j DROP && doas /sbin/iptables-save");
         }
 
 
@@ -62,8 +65,8 @@ namespace PortController
         // Esta função define a regra para aceitar conexoes ssh de entrada de qualquer ip
         public void AllowSshIn()
 		{
-			ExecuteCommand($"sudo iptables -I INPUT -p tcp --dport 22 -j ACCEPT");
-			ExecuteCommand($"sudo /sbin/iptables-save");
+			ExecuteCommand($"doas iptables -I INPUT -p tcp --dport 22 -j ACCEPT");
+			ExecuteCommand($"doas /sbin/iptables-save");
 		}
 		
 
@@ -257,7 +260,7 @@ namespace PortController
 
 
 
-        public void AddRule(string action, string firewall, string protocol, string internal_ip, string port, string rule = "")
+        public void AddRule(string action, string firewall, string protocol, string port, string rule = "")
         {
 
 
@@ -291,7 +294,29 @@ namespace PortController
 
         }
 
+        public void AddRuleNat(string firewall, string protocol, string port, string cont_internal_ip, string cont_internal_port, string rule = "")
+        {
 
+            string shost_ip = host_ip;
+            string sbridge_interface = bridge_interface;
+
+            if (firewall == "ipt")
+            {
+
+                criar_ligação(port, cont_internal_port, cont_internal_ip, protocol);
+            }
+            else if (firewall == "lxdforward")
+            {
+
+                Lxc_forward(sbridge_interface, shost_ip, port, cont_internal_port, cont_internal_ip, protocol);
+            }
+            else if (firewall == "lxdapi")
+            {
+                Lxd_api_forward("POST", sbridge_interface);
+
+            }
+
+        }
 
         // função para criar um processo e executar comandos
         private string ExecuteCommand(string command)
