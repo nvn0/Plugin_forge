@@ -12,6 +12,7 @@ namespace PortController
 
         private string? nome;
         private string? tipo;
+        private string? internal_ip;
         private bool estado;
         private List<string>? portas;
         //private int[] portas;
@@ -19,6 +20,8 @@ namespace PortController
         public string Nome { get { return nome; } /*private*/ set { nome = Nome; } }
 
         public string Tipo { get { return tipo; } /*private*/ set { tipo = Tipo; } } // lxc ou incus etc
+
+        public string Internal_ip { get { return internal_ip; } /*private*/ set { internal_ip = Internal_ip; } }
 
         public bool Estado { get { return estado; } set { estado = Estado; } } // ligado ou desligado
 

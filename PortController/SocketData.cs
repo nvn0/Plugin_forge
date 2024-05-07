@@ -40,8 +40,11 @@ namespace PortController
         
         public void ReceberJson(Socket clientSocket)
         {
-            Console.WriteLine("teste func receber json");
+            //Console.WriteLine("teste func receber json");
+
             // Ler os dados recebidos do cliente
+
+            
             byte[] buffer = new byte[1024];
             int bytesRead = clientSocket.Receive(buffer);
             string jsonData = Encoding.UTF8.GetString(buffer, 0, bytesRead);
@@ -54,6 +57,7 @@ namespace PortController
             Console.WriteLine($"Firewall: {receivedData.Fw}");
             Console.WriteLine($"Ação: {receivedData.Action}");
             Console.WriteLine($"Protocol: {receivedData.Protocol}");
+            Console.WriteLine($"Container_internal_ip: {receivedData.Container_internal_ip}");
             Console.WriteLine($"Porta: {receivedData.Port}");
             Console.WriteLine($"Rule: {receivedData.Rule}");
 
@@ -88,7 +92,7 @@ namespace PortController
                 clientSocket.Shutdown(SocketShutdown.Both);
                 clientSocket.Close();
 
-                execRegra(receivedData.Action, receivedData.Fw, receivedData.Protocol, receivedData.Port, receivedData.Rule);
+                execRegra(receivedData.Action, receivedData.Fw, receivedData.Protocol, receivedData.Container_internal_ip, receivedData.Port, receivedData.Rule);
 
             }
             else
@@ -107,18 +111,19 @@ namespace PortController
 
 
 
-        private static void execRegra(dynamic action, dynamic firewall, dynamic protocol, dynamic port, dynamic rule)
+        private static void execRegra(dynamic action, dynamic firewall, dynamic protocol, dynamic internal_ip, dynamic port, dynamic rule)
         {
             string saction = action;
             string sfw = firewall;
             string sprotocol = protocol;
+            string sinternal_ip = internal_ip;
             string sport = port;
             string srule = rule;
 
 
             Firewall fw = new Firewall();
 
-            fw.AddRule(saction, sfw, sprotocol, sport, srule);
+            fw.AddRule(saction, sfw, sprotocol, sinternal_ip, sport, srule);
 
         }
 

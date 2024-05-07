@@ -5,16 +5,21 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Runtime.InteropServices;
 using System.Xml.Linq;
+using System.Net.Sockets;
+using System.Net;
+using System.IO;
 
 namespace PortController
 {
-    internal class Lxc:Container
+    internal class Lxc : Container
     {
 
+        // Esta class é usada para executar comandos dentro de um container
+
         public Lxc()
-        { 
-        
-        
+        {
+
+
         }
 
         public Lxc(string N, string t)
@@ -33,21 +38,28 @@ namespace PortController
 
         }
 
+
+        // Constantes
+        private const string host_ip = "192.168.1.80";
+        private const string bridge_interface = "lxdbr0";
+
+
+
         //---------------------------------------------------------------------------------------------------------
         //                                                      IPTABLES
         //---------------------------------------------------------------------------------------------------------
 
-      
+
 
         public void OpenPort(string container_name, string protocol, string port)
         {
-            ExecuteCommand($"lxc exec {container_name} -- sudo iptables -A  INPUT -p {protocol} --dport {port} -j ACCEPT && sudo /sbin/iptables-save");
+            ExecuteCommand($"lxc exec {container_name} -- doas iptables -A  INPUT -p {protocol} --dport {port} -j ACCEPT && doas /sbin/iptables-save");
             //ExecuteCommand($"lxc exec {container_name} -- sudo /sbin/iptables-save");
         }
 
         public void ClosePort(string container_name, string protocol, string port)
         {
-            ExecuteCommand($"lxc exec {container_name} -- sudo iptables -A  INPUT -p {protocol} --dport {port} -j DROP && sudo /sbin/iptables-save");
+            ExecuteCommand($"lxc exec {container_name} -- doas iptables -A  INPUT -p {protocol} --dport {port} -j DROP && doas /sbin/iptables-save");
             //ExecuteCommand($"lxc exec {container_name} -- sudo /sbin/iptables-save");
         }
 
@@ -55,11 +67,11 @@ namespace PortController
         // Esta função define a regra para aceitar conexoes ssh de entrada de qualquer ip
         public void AllowSshIn(string container_name)
         {
-            ExecuteCommand($"lxc exec {container_name} -- sudo iptables -I INPUT -p tcp --dport 22 -j ACCEPT && sudo /sbin/iptables-save");
+            ExecuteCommand($"lxc exec {container_name} -- doas iptables -I INPUT -p tcp --dport 22 -j ACCEPT && doas /sbin/iptables-save");
             //ExecuteCommand($"lxc exec {container_name} -- sudo /sbin/iptables-save");
         }
 
-        
+
 
 
         //---------------------------------------------------------------------------------------------------------
@@ -68,9 +80,9 @@ namespace PortController
 
 
 
-        public void NFOpenPort(string container_name, string protocol, string port) 
+        public void NFOpenPort(string container_name, string protocol, string port)
         {
-            ExecuteCommand($"lxc exec {container_name} --sudo add rule inet filter input {protocol} dport {port} accept");
+            ExecuteCommand($"doas lxc exec {container_name} --doas add rule inet filter input {protocol} dport {port} accept");
 
 
         }
@@ -78,7 +90,7 @@ namespace PortController
 
         public void NFClosePort(string container_name, string protocol, string port)
         {
-            ExecuteCommand($"lxc exec {container_name} --sudo add rule inet filter input {protocol} dport {port} drop");
+            ExecuteCommand($"doas lxc exec {container_name} --doas add rule inet filter input {protocol} dport {port} drop");
 
         }
 
@@ -89,17 +101,17 @@ namespace PortController
 
 
 
-       
+
 
         public void AddRule(string container_name, string action, string firewall, string protocol, string port, string rule = "")
         {
 
-           
+
 
 
             if (firewall == "ipt" && action == "OpenPort")
             {
-                OpenPort(container_name, protocol,port);
+                OpenPort(container_name, protocol, port);
             }
             else if (firewall == "ipt" && action == "ClosePort")
             {
@@ -165,7 +177,7 @@ namespace PortController
         {
             //string output = ExecuteCommand($"lxc exec {this.Name} -- sudo iptables -L");
             string output = ExecuteCommand($"lxc exec {Nome} -- sudo netstat -tulpn | grep LISTEN | awk '{{print $4}}' | cut -f2 -d':' ");
-           
+
             string[] linhasArray = output.Split(new[] { '\n', '\r' }, StringSplitOptions.RemoveEmptyEntries);
 
             Portas = new List<string>(linhasArray);
@@ -206,50 +218,20 @@ namespace PortController
         }
 
 
-        //---------------------------------------------------------------------------------------------------------
-        //                                                      API - LXC
-        //---------------------------------------------------------------------------------------------------------
-
-        /*
-
-        // Importa a função lxc_attach_run_command da biblioteca compartilhada do LXC
-        [DllImport("liblxc", CallingConvention = CallingConvention.Cdecl)]
-        public static extern int lxc_attach_run_command(string name, string[] argv);
-
-
-
-        // Executar comandos no container
-        public void ApiCommand(string container_name)
-        {
-
-            string[] command = { "/bin/bash", "-c", "sudo iptables -L" };
-
-            int result = lxc_attach_run_command(container_name, command);
-            if (result != 0)
-            {
-                Console.WriteLine("Erro ao executar o comando dentro do contêiner");
-                return;
-            }
-
-            Console.WriteLine("Comando executado dentro do contêiner com sucesso");
-
-
-
-
-
-
-
-        }
-        */
-
-
-
-
-
-
-
-
 
 
     }
+
+      
+
+
+
+
+
+
+
+
+
+
+    
 }

@@ -4,12 +4,14 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Diagnostics;
+using System.Net.Sockets;
 
 namespace PortController
 {
     internal class Firewall
     {
 
+        // Esta class interage diretamente no sistema host
 
 		/*
 			IPTables é constituido por três tabelas (Filter table, Nat Table e Mangle Table)
@@ -94,7 +96,7 @@ namespace PortController
 
         public void NFOpenPort(string protocol, string port)
         {
-            ExecuteCommand($"sudo add rule inet filter input {protocol} dport {port} accept");
+            ExecuteCommand($"doas add rule inet filter input {protocol} dport {port} accept");
 
 
         }
@@ -102,14 +104,160 @@ namespace PortController
 
         public void NFClosePort(string protocol, string port)
         {
-            ExecuteCommand($"sudo add rule inet filter input {protocol} dport {port} drop");
+            ExecuteCommand($"doas add rule inet filter input {protocol} dport {port} drop");
 
         }
 
+
+
+        //---------------------------------------------------------------------------------------------------------
+        //                                      LXC Netwok - criar comandos de forward
+        //---------------------------------------------------------------------------------------------------------
+
+
+
+        public void Lxc_forward(string bridge_interface, string host_ip, string porta_exterior, string porta_container, string ip_container, string protocol)
+        {
+            //ExecuteCommand($"doas lxc network forward create {bridge_interface} {host_ip}"); // -> executar apena uma vez
+            ExecuteCommand($"doas lxc network forward port add {bridge_interface} {host_ip} {protocol} {porta_exterior} {ip_container} {porta_container}");
+
+        }
+
+
+
+
+
+
+
+
+
+
+
+
+
+        //---------------------------------------------------------------------------------------------------------
+        //                                       IPTABLES - criar comandos na tabela NAT
+        //---------------------------------------------------------------------------------------------------------
+
+
+
+
+
+        public void criar_ligação(string porta_exterior, string porta_container, string ip_container, string protocol)
+        {
+            ExecuteCommand($"doas iptables -t nat -I PREROUTING -p {protocol} --dport {porta_exterior} -j DNAT --to-destination {ip_container}:{porta_container} && doas /sbin/iptables-save");
+
+        }
+
+
+
+
+
+
+
+
+
+
+
+
+
+        //---------------------------------------------------------------------------------------------------------
+        //                                                      API - LXC 
+        //---------------------------------------------------------------------------------------------------------
+
+
+        // Caminho -> /var/lib/lxd/unix.socket
+
+
+        public void Lxd_api_forward(string req_type, string bridge_interface) //criar comandos de forward
+        {
+
+            // GET /1.0/networks/{networkName}/forwards
+            // GET /1.0/networks/{networkName}/forwards?recursion=1
+            // GET / 1.0 / networks /{ networkName}/ forwards /{ listenAddress}
+            // POST / 1.0 / networks /{ networkName}/ forwards
+            //PATCH /1.0/networks/{networkName}/forwards/{listenAddress}
+
+
+            try
+            {
+                // Endereço do Unix socket
+                string socketPath = "/var/lib/lxd/unix.socket";
+
+                // Criar um novo socket Unix
+                using (var socket = new Socket(AddressFamily.Unix, SocketType.Stream, ProtocolType.Unspecified))
+                {
+                    // Conectar ao Unix socket
+                    ConnectToUnixSocket(socket, socketPath);
+
+                    if (req_type == "GET")
+                    {
+                        // Enviar uma solicitação HTTP GET
+                        string requestPath = $"/1.0/networks/{bridge_interface}/forwards";
+                        string request = $"GET /1.0/networks/{bridge_interface}/forwards HTTP/1.1\r\nHost: dummy\r\n\r\n";
+
+                        // Enviar a solicitação
+                        byte[] requestBytes = Encoding.UTF8.GetBytes(request);
+                        socket.Send(requestBytes);
+
+                    }
+                    else if (req_type == "POST")
+                    {
+                        // Enviar uma solicitação HTTP POST
+
+                        // Conteúdo que deseja enviar no corpo do POST
+                        string postData = "param1=value1&param2=value2";
+
+                        // Construir a solicitação POST
+                        string networkName = "nome_da_rede";
+                        string requestPath = $"/1.0/networks/{networkName}/forwards";
+                        string request = $"POST {requestPath} HTTP/1.1\r\nHost: dummy\r\nContent-Length: {postData.Length}\r\n\r\n{postData}";
+
+                        byte[] requestBytes = Encoding.UTF8.GetBytes(request);
+                        socket.Send(requestBytes);
+
+                    }
+
+                    // Receber resposta do socket
+                    byte[] receiveBuffer = new byte[1024];
+                    int receivedBytes = socket.Receive(receiveBuffer);
+                    string responseData = Encoding.UTF8.GetString(receiveBuffer, 0, receivedBytes);
+                    Console.WriteLine("Response from server: " + responseData);
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("Error: " + ex.Message);
+            }
+        }
+
+        static void ConnectToUnixSocket(Socket socket, string socketPath)
+        {
+            // Criar um objeto UnixDomainSocketEndPoint
+            var endPoint = new UnixDomainSocketEndPoint(socketPath);
+
+            // Conectar ao Unix socket
+            socket.Connect(endPoint);
+        }
+
+
+
+
+
+
+
+
+
+
+
+
+        //-----------------------------------------------------------------------------------------------------------------------------
+        //                                                   Decide a regra a executar
         //-----------------------------------------------------------------------------------------------------------------------------
 
 
-        public void AddRule(string action, string firewall, string protocol, string port, string rule = "")
+
+        public void AddRule(string action, string firewall, string protocol, string internal_ip, string port, string rule = "")
         {
 
 
@@ -182,5 +330,8 @@ namespace PortController
 
 
         }
+
+
+
     }
 }
