@@ -99,7 +99,7 @@ namespace PortController
             if (receivedData.Type == "host" && receivedData.Action == "AddNat" || receivedData.Type == "host" && receivedData.Action == "RemoveNat" || receivedData.Type == "host" && receivedData.Action == "ResetNat")
             {
 
-                clientSocket.Shutdown(SocketShutdown.Both);
+                //clientSocket.Shutdown(SocketShutdown.Both);
                 clientSocket.Close();
 
                 execRegraNat(receivedData.Action, receivedData.Fw, receivedData.Protocol, receivedData.Port, receivedData.Container_internal_ip, receivedData.Container_internal_port, receivedData.Rule);
@@ -151,7 +151,7 @@ namespace PortController
 
             Firewall fw = new Firewall();
 
-            fw.AddRuleNat(sfw, sprotocol, sport, scont_internal_ip, scont_internal_port, srule);
+            fw.AddRuleNat(saction, sfw, sprotocol, sport, scont_internal_ip, scont_internal_port, srule);
 
         }
         // ------------------------------------------------------ Containers -----------------------------------------------------------

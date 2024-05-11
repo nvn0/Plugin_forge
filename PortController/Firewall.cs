@@ -590,26 +590,29 @@ namespace PortController
 
             if (firewall == "ipt")
             {
-
+                Console.WriteLine("opc 1");
                 criar_ligação(port, cont_internal_port, cont_internal_ip, protocol);
             }
             else if (firewall == "lxdforward")
             {
-
+                Console.WriteLine("opc 2");
                 Lxc_forward(sbridge_interface, shost_ip, port, cont_internal_port, cont_internal_ip, protocol);
             }
             else if (firewall == "lxdapi" && action == "AddNat")
             {
+                Console.WriteLine("opc 3");
                 Lxd_api_forward(sbridge_interface, shost_ip, protocol, port, cont_internal_ip, cont_internal_port);
 
             }
             else if (firewall == "lxdapi" && action == "RemoveNat")
             {
+                Console.WriteLine("opc 4");
                 Lxd_api_forward_remove(sbridge_interface, shost_ip, protocol, port, cont_internal_ip, cont_internal_port);
 
             }
             else if (firewall == "lxdapi" && action == "ResetNat")
             {
+                Console.WriteLine("reset nat");
                 Lxd_api_forward_reset(sbridge_interface, shost_ip);
 
             }
