@@ -203,47 +203,62 @@ namespace PortController
                     dynamic jsonResponseObject = JsonSerializer.Deserialize<dynamic>(responseBody);
                     Console.WriteLine("OBJETO JSON: " + jsonResponseObject);
 
+                    // Inicializa metadataElement com um valor padrão
+                    JsonElement metadataElement = default;
 
 
                     // Verifica se o objeto contém a propriedade "metadata"
-                    if (jsonResponseObject is not null && jsonResponseObject.ContainsKey("metadata"))
+                    if (jsonResponseObject is not null && jsonResponseObject.TryGetProperty("metadata", out metadataElement))
                     {
                         // Obtém o objeto "metadata"
-                        dynamic metadataObject = jsonResponseObject["metadata"];
+                        dynamic metadataObject = metadataElement;
 
                         // Verifica se "metadata" contém a propriedade "ports"
-                        if (metadataObject.ContainsKey("ports"))
+                        if (metadataObject.TryGetProperty("ports", out JsonElement portsElement))
                         {
                             // Obtém a lista de portas do objeto "metadata"
-                            List<dynamic> portsList = new List<dynamic>(metadataObject["ports"].EnumerateArray());
+                            List<dynamic> portsList = new List<dynamic>();
 
-                            // Cria um novo objeto para adicionar à lista de portas
-                            dynamic newPort = new
+                            // Verifica se "ports" é de fato um array
+                            if (portsElement.ValueKind == JsonValueKind.Array)
                             {
-                                description = "",
-                                listen_port = port,
-                                protocol = sprotocol,
-                                target_address = cont_internal_ip,
-                                target_port = cont_internal_port
-                            };
+                                // Converte o elemento "ports" para uma lista de portas
+                                foreach (var portas in portsElement.EnumerateArray())
+                                {
+                                    portsList.Add(portas);
+                                }
 
-                            // Adiciona o novo objeto à lista de portas
-                            portsList.Add(newPort);
+                                // Cria um novo objeto para adicionar à lista de portas
+                                dynamic newPort = new
+                                {
+                                    description = "",
+                                    listen_port = port,
+                                    protocol = sprotocol,
+                                    target_address = cont_internal_ip,
+                                    target_port = cont_internal_port
+                                };
 
-                            Console.WriteLine("PORTAS: " + portsList);
+                                // Adiciona o novo objeto à lista de portas
+                                portsList.Add(newPort);
 
+                                Console.WriteLine("PORTAS: " + portsList);
+
+                            }
+                            else
+                            {
+                                Console.WriteLine("A propriedade 'ports' em 'metadata' não é um array.");
+                            }
                         }
                         else
                         {
-                            Console.WriteLine("A propriedade 'ports' não é um array.");
+                            Console.WriteLine("O objeto 'metadata' não possui a propriedade 'ports'.");
                         }
-
-
                     }
                     else
                     {
-                        Console.WriteLine("O objeto JSON não possui a propriedade 'ports' ou é nulo/vazio.");
+                        Console.WriteLine("O objeto JSON não possui a propriedade 'metadata' ou é nulo/vazio.");
                     }
+                
 
 
                     // Converte o objeto JSON modificado de volta para uma string JSON
