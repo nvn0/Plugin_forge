@@ -156,7 +156,7 @@ namespace PortController
         // Caminho -> /var/lib/lxd/unix.socket
 
 
-        private void Lxd_api_forward(string req_type, string bridge_interface, string host_ip, string sprotocol,string port, string cont_internal_ip, string cont_internal_port) //criar comandos de forward
+        private void Lxd_api_forward(string bridge_interface, string host_ip, string sprotocol,string port, string cont_internal_ip, string cont_internal_port) //criar comandos de forward
         {
 
             // GET /1.0/networks/{networkName}/forwards
@@ -598,9 +598,19 @@ namespace PortController
 
                 Lxc_forward(sbridge_interface, shost_ip, port, cont_internal_port, cont_internal_ip, protocol);
             }
-            else if (firewall == "lxdapi")
+            else if (firewall == "lxdapi" && action == "AddNat")
             {
-                Lxd_api_forward("PUT", sbridge_interface, shost_ip, protocol, port, cont_internal_ip, cont_internal_port);
+                Lxd_api_forward(sbridge_interface, shost_ip, protocol, port, cont_internal_ip, cont_internal_port);
+
+            }
+            else if (firewall == "lxdapi" && action == "RemoveNat")
+            {
+                Lxd_api_forward_remove(sbridge_interface, shost_ip, protocol, port, cont_internal_ip, cont_internal_port);
+
+            }
+            else if (firewall == "lxdapi" && action == "ResetNat")
+            {
+                Lxd_api_forward_reset(sbridge_interface, shost_ip);
 
             }
 

@@ -96,7 +96,7 @@ namespace PortController
                 execRegra(receivedData.Action, receivedData.Fw, receivedData.Protocol, receivedData.Port, receivedData.Rule);
 
             } 
-            if (receivedData.Type == "host" && receivedData.Action == "AddNat" || receivedData.Type == "host" && receivedData.Action == "RemoveNat")
+            if (receivedData.Type == "host" && receivedData.Action == "AddNat" || receivedData.Type == "host" && receivedData.Action == "RemoveNat" || receivedData.Type == "host" && receivedData.Action == "ResetNat")
             {
 
                 clientSocket.Shutdown(SocketShutdown.Both);
