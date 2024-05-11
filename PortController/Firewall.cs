@@ -204,6 +204,10 @@ namespace PortController
                     Console.WriteLine("OBJETO JSON: " + jsonResponseObject);
 
 
+
+                    JsonDocument jsonDocument = JsonDocument.Parse(jsonResponseObject);
+                    JsonElement root = jsonDocument.RootElement;
+
                     // var jsonDoc = JsonDocument.Parse(responseData.);
                     //Console.WriteLine(jsonDoc);
 
@@ -212,7 +216,12 @@ namespace PortController
 
                     //JsonElement value = root.GetProperty("ports");
 
-                    dynamic portsObject = jsonResponseObject["ports"];
+                    //dynamic portsObject = jsonResponseObject["ports"];
+
+                    JsonElement portsArray = root.GetProperty("ports");
+
+                    List<JsonElement> portsList = new List<JsonElement>(portsArray.EnumerateArray());
+
 
                     // Converte o JSON para um objeto dynamic
                     //dynamic jsonObject = JsonSerializer.Deserialize<dynamic>(jsonDoc);
@@ -229,10 +238,13 @@ namespace PortController
                         target_port = cont_internal_port
                     };
 
-                    // Adiciona o novo objeto à lista de ports
-                    portsObject.Add(newPort);
 
-                    Console.WriteLine("PORTAS: " + portsObject);
+                    //JsonElement newPort = JsonDocument.Parse("{\"description\":\"new port\",\"listen_port\":\"9000\",\"protocol\":\"tcp\",\"target_address\":\"10.0.0.1\",\"target_port\":\"9000\"}").RootElement;
+                    // Adiciona o novo objeto à lista de ports
+
+                    portsList.Add(newPort);
+
+                    Console.WriteLine("PORTAS: " + portsList);
 
                     // Converte o objeto JSON modificado de volta para uma string JSON
                     //string modifiedJsonString = JsonSerializer.Serialize(jsonObject);
@@ -252,7 +264,7 @@ namespace PortController
                         config = new { },
                         description = "",
                         listen_address = host_ip,
-                        ports = portsObject
+                        ports = portsList
                     };
 
                     // Converte o objeto dinâmico para uma string JSON
