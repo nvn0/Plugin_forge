@@ -387,9 +387,9 @@ namespace PortController
                                 string targetPortToRemove = cont_internal_port; 
 
                                 // Remove o objeto da lista de portas se o "target_address" e o "target_port" forem os especificados
-                                portsList.RemoveAll(port =>
+                                portsList.RemoveAll(portas =>
                                 {
-                                    dynamic dynamicPort = port;
+                                    dynamic dynamicPort = portas;
                                     return dynamicPort.target_address == targetAddressToRemove && dynamicPort.target_port == targetPortToRemove;
                                 });
 
