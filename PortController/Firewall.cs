@@ -205,12 +205,11 @@ namespace PortController
 
 
 
-                    if (jsonResponseObject.ContainsKey("ports"))
+                    // Verifica se o objeto contém a propriedade "ports"
+                    if (jsonResponseObject.TryGetProperty("ports", out JsonElement portsObject))
                     {
-                        dynamic portsObject = jsonResponseObject["ports"];
-
                         // Verifica se "ports" é de fato um array
-                        if (portsObject is JsonElement && portsObject.ValueKind == JsonValueKind.Array)
+                        if (portsObject.ValueKind == JsonValueKind.Array)
                         {
                             // Converte o objeto "ports" para uma lista manipulável
                             List<dynamic> portsList = new List<dynamic>();
