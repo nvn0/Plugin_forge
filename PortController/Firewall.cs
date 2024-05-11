@@ -193,10 +193,25 @@ namespace PortController
 
                     //------ Edição do JSON ------------------------
 
-                    var jsonDoc = JsonDocument.Parse(responseData);
+                    // Encontra o índice do final dos cabeçalhos na resposta
+                    int headersEndIndex = responseData.IndexOf("\r\n\r\n");
+
+                    // Extrai a parte do corpo da resposta (após o final dos cabeçalhos)
+                    string responseBody = responseData.Substring(headersEndIndex + 4);
+
+                    // Analisa o JSON do corpo da resposta
+                    dynamic jsonResponseObject = JsonSerializer.Deserialize<dynamic>(responseBody);
+
+
+
+                   // var jsonDoc = JsonDocument.Parse(responseData.);
+                    //Console.WriteLine(jsonDoc);
+
 
                     // Converte o JSON para um objeto dynamic
-                    dynamic jsonObject = JsonSerializer.Deserialize<dynamic>(jsonDoc);
+                    //dynamic jsonObject = JsonSerializer.Deserialize<dynamic>(jsonDoc);
+                    //Console.WriteLine(jsonObject);
+
 
                     // Novo objeto para adicionar à lista de portas
                     dynamic newPort = new
@@ -209,7 +224,7 @@ namespace PortController
                     };
 
                     // Adiciona o novo objeto à lista de ports
-                    jsonObject["ports"].Add(newPort);
+                    jsonResponseObject["ports"].Add(newPort);
 
                     // Converte o objeto JSON modificado de volta para uma string JSON
                     //string modifiedJsonString = JsonSerializer.Serialize(jsonObject);
@@ -229,7 +244,7 @@ namespace PortController
                         config = new { },
                         description = "",
                         listen_address = host_ip,
-                        ports = jsonObject["ports"]
+                        ports = jsonResponseObject["ports"]
                     };
 
                     // Converte o objeto dinâmico para uma string JSON
