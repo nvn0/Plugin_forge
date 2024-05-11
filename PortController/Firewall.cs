@@ -201,12 +201,18 @@ namespace PortController
 
                     // Analisa o JSON do corpo da resposta
                     dynamic jsonResponseObject = JsonSerializer.Deserialize<dynamic>(responseBody);
-                    Console.WriteLine(jsonResponseObject);
+                    Console.WriteLine("OBJETO JSON: " + jsonResponseObject);
 
 
-                   // var jsonDoc = JsonDocument.Parse(responseData.);
+                    // var jsonDoc = JsonDocument.Parse(responseData.);
                     //Console.WriteLine(jsonDoc);
 
+                    //JsonDocument jsonDocument = JsonDocument.Parse(jsonResponseObject);
+                    //JsonElement root = jsonDocument.RootElement;
+
+                    //JsonElement value = root.GetProperty("ports");
+
+                    dynamic portsObject = jsonResponseObject["ports"];
 
                     // Converte o JSON para um objeto dynamic
                     //dynamic jsonObject = JsonSerializer.Deserialize<dynamic>(jsonDoc);
@@ -224,7 +230,9 @@ namespace PortController
                     };
 
                     // Adiciona o novo objeto à lista de ports
-                    jsonResponseObject["ports"].Add(newPort);
+                    portsObject.Add(newPort);
+
+                    Console.WriteLine("PORTAS: " + portsObject);
 
                     // Converte o objeto JSON modificado de volta para uma string JSON
                     //string modifiedJsonString = JsonSerializer.Serialize(jsonObject);
@@ -244,7 +252,7 @@ namespace PortController
                         config = new { },
                         description = "",
                         listen_address = host_ip,
-                        ports = jsonResponseObject["ports"]
+                        ports = portsObject
                     };
 
                     // Converte o objeto dinâmico para uma string JSON
