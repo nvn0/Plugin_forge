@@ -165,6 +165,7 @@ namespace PortController
             // POST / 1.0 / networks /{ networkName}/ forwards
             //PATCH /1.0/networks/{networkName}/forwards/{listenAddress}
             string portsJson = string.Empty;
+            List<dynamic> portsList = new List<dynamic>();
 
             try
             {
@@ -218,8 +219,7 @@ namespace PortController
                         // Verifica se "metadata" contém a propriedade "ports"
                         if (metadataObject.TryGetProperty("ports", out JsonElement portsElement))
                         {
-                            // Obtém a lista de portas do objeto "metadata"
-                            List<dynamic> portsList = new List<dynamic>();
+                           
 
                             // Verifica se "ports" é de fato um array
                             if (portsElement.ValueKind == JsonValueKind.Array)
@@ -285,7 +285,7 @@ namespace PortController
                         config = new { },
                         description = "",
                         listen_address = host_ip,
-                        ports = portsJson
+                        ports = portsList
                     };
 
                     // Converte o objeto dinâmico para uma string JSON
