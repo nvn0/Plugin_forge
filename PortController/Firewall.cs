@@ -215,9 +215,9 @@ namespace PortController
                             // Converte o objeto "ports" para uma lista manipulável
                             List<dynamic> portsList = new List<dynamic>();
 
-                            foreach (var port in portsObject.EnumerateArray())
+                            foreach (var portas in portsObject.EnumerateArray())
                             {
-                                portsList.Add(port);
+                                portsList.Add(portas);
                             }
 
                             // Cria um novo objeto para adicionar à lista de portas
@@ -267,7 +267,7 @@ namespace PortController
                         config = new { },
                         description = "",
                         listen_address = host_ip,
-                        ports = portsList
+                        ports = "portsList"
                     };
 
                     // Converte o objeto dinâmico para uma string JSON
