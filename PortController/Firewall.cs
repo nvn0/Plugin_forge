@@ -106,7 +106,7 @@ namespace PortController
         public void Lxc_forward(string bridge_interface, string host_ip, string porta_exterior, string porta_container, string ip_container, string protocol)
         {
             //ExecuteCommand($"doas lxc network forward create {bridge_interface} {host_ip}"); // -> executar apena uma vez
-            ExecuteCommand($"doas lxc network forward port add {bridge_interface} {host_ip} {protocol} {porta_exterior} {ip_container} {porta_container}");
+            ExecuteCommand($"lxc network forward port add {bridge_interface} {host_ip} {protocol} {porta_exterior} {ip_container} {porta_container}");
 
         }
 
@@ -132,7 +132,7 @@ namespace PortController
 
         public void criar_ligação(string porta_exterior, string porta_container, string ip_container, string protocol)
         {
-            ExecuteCommand($"doas iptables -t nat -I PREROUTING -p {protocol} --dport {porta_exterior} -j DNAT --to-destination {ip_container}:{porta_container} && doas /sbin/iptables-save");
+            ExecuteCommand($"iptables -t nat -I PREROUTING -p {protocol} --dport {porta_exterior} -j DNAT --to-destination {ip_container}:{porta_container} && doas /sbin/iptables-save");
 
         }
 
@@ -208,7 +208,7 @@ namespace PortController
                         target_port = cont_internal_port
                     };
 
-                    // Adiciona o novo objeto à lista de portos
+                    // Adiciona o novo objeto à lista de ports
                     jsonObject["ports"].Add(newPort);
 
                     // Converte o objeto JSON modificado de volta para uma string JSON
@@ -234,7 +234,7 @@ namespace PortController
 
                     // Converte o objeto dinâmico para uma string JSON
                     string requestBody = JsonSerializer.Serialize(requestBodyObject);
-
+                    Console.WriteLine(requestBody);
 
                     // Construir a solicitação PUT
                     string requestPath2 = $"/1.0/networks/lxdbr0/forwards/{host_ip}";
@@ -588,12 +588,12 @@ namespace PortController
             string shost_ip = host_ip;
             string sbridge_interface = bridge_interface;
 
-            if (firewall == "ipt")
+            if (firewall == "ipt" && action == "AddNat")
             {
                 Console.WriteLine("opc 1");
                 criar_ligação(port, cont_internal_port, cont_internal_ip, protocol);
             }
-            else if (firewall == "lxdforward")
+            else if (firewall == "lxdforward" && action == "AddNat")
             {
                 Console.WriteLine("opc 2");
                 Lxc_forward(sbridge_interface, shost_ip, port, cont_internal_port, cont_internal_ip, protocol);
