@@ -205,49 +205,49 @@ namespace PortController
 
 
 
-                    //JsonDocument jsonDocument = JsonDocument.Parse(jsonResponseObject);
-                    //JsonElement root = jsonDocument.RootElement;
-
-                    // var jsonDoc = JsonDocument.Parse(responseData.);
-                    //Console.WriteLine(jsonDoc);
-
-                    //JsonDocument jsonDocument = JsonDocument.Parse(jsonResponseObject);
-                    //JsonElement root = jsonDocument.RootElement;
-
-                    //JsonElement value = root.GetProperty("ports");
-
-                    List<dynamic> portsList = new List<dynamic>(jsonResponseObject["ports"].EnumerateArray());
-
-                    //dynamic portsObject = jsonResponseObject["ports"];
-                    Console.WriteLine(portsList);
-
-                    //JsonElement portsArray = root.GetProperty("ports");
-
-                    // List<JsonElement> portsList = new List<JsonElement>(portsArray.EnumerateArray());
-
-
-                    // Converte o JSON para um objeto dynamic
-                    //dynamic jsonObject = JsonSerializer.Deserialize<dynamic>(jsonDoc);
-                    //Console.WriteLine(jsonObject);
-
-
-                    // Novo objeto para adicionar à lista de portas
-                    dynamic newPort = new
+                    if (jsonResponseObject.ContainsKey("ports"))
                     {
-                        description = "",
-                        listen_port = port,
-                        protocol = sprotocol,
-                        target_address = cont_internal_ip,
-                        target_port = cont_internal_port
-                    };
+                        dynamic portsObject = jsonResponseObject["ports"];
+
+                        // Verifica se "ports" é de fato um array
+                        if (portsObject is JsonElement && portsObject.ValueKind == JsonValueKind.Array)
+                        {
+                            // Converte o objeto "ports" para uma lista manipulável
+                            List<dynamic> portsList = new List<dynamic>();
+
+                            foreach (var port in portsObject.EnumerateArray())
+                            {
+                                portsList.Add(port);
+                            }
+
+                            // Cria um novo objeto para adicionar à lista de portas
+                            dynamic newPort = new
+                            {
+                                description = "",
+                                listen_port = port,
+                                protocol = sprotocol,
+                                target_address = cont_internal_ip,
+                                target_port = cont_internal_port
+                            };
+
+                            // Adiciona o novo objeto à lista de portas
+                            portsList.Add(newPort);
+
+                            Console.WriteLine("PORTAS: " + portsList);
+
+                        }
+                        else
+                        {
+                            Console.WriteLine("A propriedade 'ports' não é um array.");
+                        }
 
 
-                    //JsonElement newPort = JsonDocument.Parse("{\"description\":\"new port\",\"listen_port\":\"9000\",\"protocol\":\"tcp\",\"target_address\":\"10.0.0.1\",\"target_port\":\"9000\"}").RootElement;
-                    // Adiciona o novo objeto à lista de ports
+                    }
+                    else
+                    {
+                        Console.WriteLine("O objeto JSON não possui a propriedade 'ports'.");
+                    }
 
-                    portsList.Add(newPort);
-
-                    Console.WriteLine("PORTAS: " + portsList);
 
                     // Converte o objeto JSON modificado de volta para uma string JSON
                     //string modifiedJsonString = JsonSerializer.Serialize(jsonObject);
