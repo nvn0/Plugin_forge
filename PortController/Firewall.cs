@@ -216,7 +216,7 @@ namespace PortController
 
                     //JsonElement value = root.GetProperty("ports");
 
-                    List<dynamic> portsList = new List<dynamic>(jsonResponseObject["ports"]);
+                    List<dynamic> portsList = new List<dynamic>(jsonResponseObject["ports"].EnumerateArray());
 
                     //dynamic portsObject = jsonResponseObject["ports"];
                     Console.WriteLine(portsList);
