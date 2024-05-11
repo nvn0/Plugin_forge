@@ -6,7 +6,6 @@ using System.Threading.Tasks;
 using System.Diagnostics;
 using System.Net.Sockets;
 using System.Runtime.InteropServices.JavaScript;
-using System.Text;
 using System.Text.Json;
 
 namespace PortController
@@ -321,6 +320,7 @@ namespace PortController
             // POST / 1.0 / networks /{ networkName}/ forwards
             //PATCH /1.0/networks/{networkName}/forwards/{listenAddress}
 
+            List<dynamic> portsList = new List<dynamic>();
 
             try
             {
@@ -350,60 +350,87 @@ namespace PortController
 
                     //------ Edição do JSON ------------------------
 
-                    var jsonDoc = JsonDocument.Parse(responseData);
+                    // Encontra o índice do final dos cabeçalhos na resposta
+                    int headersEndIndex = responseData.IndexOf("\r\n\r\n");
 
-                    // Converte o JSON para um objeto dynamic
-                    dynamic jsonObject = JsonSerializer.Deserialize<dynamic>(jsonDoc);
+                    // Extrai a parte do corpo da resposta (após o final dos cabeçalhos)
+                    string responseBody = responseData.Substring(headersEndIndex + 4);
 
-                    // Lista para armazenar os portos modificados
-                    List<dynamic> modifiedPorts = new List<dynamic>();
+                    // Analisa o JSON do corpo da resposta
+                    dynamic jsonResponseObject = JsonSerializer.Deserialize<dynamic>(responseBody);
+                    Console.WriteLine("OBJETO JSON: " + jsonResponseObject);
 
-                    // Valores específicos para target_address e target_port
-                    string specificTargetAddress = cont_internal_ip;
-                    string specificTargetPort = cont_internal_port;
+                   
 
-                    // Verifica cada porta no JSON original
-                    foreach (var porta in jsonObject["ports"])
+                    // Inicializa metadataElement com um valor padrão
+                    JsonElement metadataElement = default;
+
+                    // Verifica se o objeto contém a propriedade "metadata"
+                    if (jsonResponseObject is not null && jsonResponseObject.TryGetProperty("metadata", out metadataElement))
                     {
-                        // Verifica se o target_address e o target_port correspondem aos valores específicos
-                        if (porta["target_address"] != specificTargetAddress || porta["target_port"] != specificTargetPort)
+                        // Verifica se "metadata" contém a propriedade "ports"
+                        if (metadataElement.TryGetProperty("ports", out JsonElement portsElement))
                         {
-                            // Adiciona a porta à lista de portos modificados
-                            modifiedPorts.Add(porta);
+                            
+
+                            // Verifica se "ports" é de fato um array
+                            if (portsElement.ValueKind == JsonValueKind.Array)
+                            {
+                                // Converte o elemento "ports" para uma lista de portas
+                                foreach (var portas in portsElement.EnumerateArray())
+                                {
+                                    portsList.Add(portas);
+                                }
+
+                                // Especifica o "target_address" e o "target_port" a serem removidos
+                                string targetAddressToRemove = cont_internal_ip; 
+                                string targetPortToRemove = cont_internal_port; 
+
+                                // Remove o objeto da lista de portas se o "target_address" e o "target_port" forem os especificados
+                                portsList.RemoveAll(port =>
+                                {
+                                    dynamic dynamicPort = port;
+                                    return dynamicPort.target_address == targetAddressToRemove && dynamicPort.target_port == targetPortToRemove;
+                                });
+
+                                // Serializa a lista de portas de volta para uma string JSON
+                                string portsJson = JsonSerializer.Serialize(portsList);
+                                Console.WriteLine("Lista de portas em formato JSON após remoção: " + portsJson);
+
+                                // Agora você pode usar a string JSON da lista de portas conforme necessário
+                            }
+                            else
+                            {
+                                Console.WriteLine("A propriedade 'ports' em 'metadata' não é um array.");
+                            }
+                        }
+                        else
+                        {
+                            Console.WriteLine("O objeto 'metadata' não possui a propriedade 'ports'.");
                         }
                     }
+                    else
+                    {
+                        Console.WriteLine("O objeto JSON não possui a propriedade 'metadata' ou é nulo/vazio.");
+                    }
 
-                    // Atualiza a lista de portos no JSON original
-                    //jsonObject["ports"] = modifiedPorts;
 
-                    // Converte o objeto JSON modificado de volta para uma string JSON
-                    //string modifiedJsonString = JsonSerializer.Serialize(jsonObject);
-
-                    // Imprime a string JSON modificada
-                    //Console.WriteLine(modifiedJsonString);
-
+                   
                     // ----------------------------------------------- PUT --------------------------------------------
 
-                    //string portsPart = jsonObject["ports"];
-
-                    //string requestBody = @$"{{""config"":{{}},""description"":""Nat Redirect Ports"",""listen_address"":""{host_ip}"",""ports"":{portsPart}}}";
-
+                  
 
                     dynamic requestBodyObject = new
                     {
                         config = new { },
                         description = "",
                         listen_address = host_ip,
-                        ports = jsonObject["ports"]           
+                        ports = portsList
                     };
+
 
                     // Converte o objeto dinâmico para uma string JSON
                     string requestBody = JsonSerializer.Serialize(requestBodyObject);
-
-
-
-
-
 
 
                     // Construir a solicitação PUT
