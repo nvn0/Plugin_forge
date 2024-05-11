@@ -216,8 +216,10 @@ namespace PortController
 
                     //JsonElement value = root.GetProperty("ports");
 
-                    dynamic portsObject = jsonResponseObject["ports"];
-                    Console.WriteLine(portsObject);
+                    List<dynamic> portsList = new List<dynamic>(jsonResponseObject["ports"]);
+
+                    //dynamic portsObject = jsonResponseObject["ports"];
+                    Console.WriteLine(portsList);
 
                     //JsonElement portsArray = root.GetProperty("ports");
 
@@ -243,9 +245,9 @@ namespace PortController
                     //JsonElement newPort = JsonDocument.Parse("{\"description\":\"new port\",\"listen_port\":\"9000\",\"protocol\":\"tcp\",\"target_address\":\"10.0.0.1\",\"target_port\":\"9000\"}").RootElement;
                     // Adiciona o novo objeto à lista de ports
 
-                    portsObject.Add(newPort);
+                    portsList.Add(newPort);
 
-                    Console.WriteLine("PORTAS: " + portsObject);
+                    Console.WriteLine("PORTAS: " + portsList);
 
                     // Converte o objeto JSON modificado de volta para uma string JSON
                     //string modifiedJsonString = JsonSerializer.Serialize(jsonObject);
@@ -265,12 +267,12 @@ namespace PortController
                         config = new { },
                         description = "",
                         listen_address = host_ip,
-                        ports = portsObject
+                        ports = portsList
                     };
 
                     // Converte o objeto dinâmico para uma string JSON
                     string requestBody = JsonSerializer.Serialize(requestBodyObject);
-                    Console.WriteLine(requestBody);
+                    Console.WriteLine("enviar: " + requestBody);
 
                     // Construir a solicitação PUT
                     string requestPath2 = $"/1.0/networks/lxdbr0/forwards/{host_ip}";
