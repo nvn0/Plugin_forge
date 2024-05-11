@@ -164,7 +164,7 @@ namespace PortController
             // GET / 1.0 / networks /{ networkName}/ forwards /{ listenAddress}
             // POST / 1.0 / networks /{ networkName}/ forwards
             //PATCH /1.0/networks/{networkName}/forwards/{listenAddress}
-
+            string portsJson = string.Empty;
 
             try
             {
@@ -207,6 +207,8 @@ namespace PortController
                     JsonElement metadataElement = default;
 
 
+                    
+
                     // Verifica se o objeto contém a propriedade "metadata"
                     if (jsonResponseObject is not null && jsonResponseObject.TryGetProperty("metadata", out metadataElement))
                     {
@@ -240,9 +242,12 @@ namespace PortController
 
                                 // Adiciona o novo objeto à lista de portas
                                 portsList.Add(newPort);
-                                string portsJson = JsonSerializer.Serialize(portsList);
+                                portsJson = JsonSerializer.Serialize(portsList);
 
                                 Console.WriteLine("PORTAS: " + portsJson);
+
+
+
 
                             }
                             else
@@ -280,7 +285,7 @@ namespace PortController
                         config = new { },
                         description = "",
                         listen_address = host_ip,
-                        ports = "portsList"
+                        ports = portsJson
                     };
 
                     // Converte o objeto dinâmico para uma string JSON
