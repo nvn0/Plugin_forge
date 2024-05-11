@@ -205,27 +205,41 @@ namespace PortController
 
 
 
-                    if (jsonResponseObject is not null && jsonResponseObject.ContainsKey("ports"))
+                    // Tenta acessar a propriedade "ports"
+                    if (jsonResponseObject.TryGetProperty("ports", out JsonElement portsElement))
                     {
-                        // Obtém a lista de portas
-                        List<dynamic> portsList = new List<dynamic>(jsonResponseObject["ports"].EnumerateArray());
-
-                        // Cria um novo objeto para adicionar à lista de portas
-                        dynamic newPort = new
+                        // Verifica se "ports" é de fato um array
+                        if (portsElement.ValueKind == JsonValueKind.Array)
                         {
-                            description = "",
-                            listen_port = port,
-                            protocol = sprotocol,
-                            target_address = cont_internal_ip,
-                            target_port = cont_internal_port
-                        };
+                            // Obtém a lista de portas
+                            List<dynamic> portsList = new List<dynamic>();
 
-                        // Adiciona o novo objeto à lista de portas
-                        portsList.Add(newPort);
+                            // Converte o elemento "ports" para uma lista de portas
+                            foreach (var portas in portsElement.EnumerateArray())
+                            {
+                                portsList.Add(portas);
+                            }
 
-                        Console.WriteLine("PORTAS: " + portsList);
+                            // Cria um novo objeto para adicionar à lista de portas
+                            dynamic newPort = new
+                            {
+                                description = "",
+                                listen_port = port,
+                                protocol = sprotocol,
+                                target_address = cont_internal_ip,
+                                target_port = cont_internal_port
+                            };
 
-                       
+                            // Adiciona o novo objeto à lista de portas
+                            portsList.Add(newPort);
+
+                            Console.WriteLine("PORTAS: " + portsList);
+
+                        }
+                        else
+                        {
+                            Console.WriteLine("A propriedade 'ports' não é um array.");
+                        }
 
 
                     }
