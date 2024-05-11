@@ -320,7 +320,7 @@ namespace PortController
             // POST / 1.0 / networks /{ networkName}/ forwards
             //PATCH /1.0/networks/{networkName}/forwards/{listenAddress}
 
-            List<dynamic> portsList = new List<dynamic>();
+            List<JsonElement> portsList = new List<JsonElement>();
 
             try
             {
@@ -371,26 +371,27 @@ namespace PortController
                         // Verifica se "metadata" contém a propriedade "ports"
                         if (metadataElement.TryGetProperty("ports", out JsonElement portsElement))
                         {
-                            
+
 
                             // Verifica se "ports" é de fato um array
                             if (portsElement.ValueKind == JsonValueKind.Array)
                             {
                                 // Converte o elemento "ports" para uma lista de portas
-                                foreach (var portas in portsElement.EnumerateArray())
+                                foreach (JsonElement portas in portsElement.EnumerateArray())
                                 {
                                     portsList.Add(portas);
                                 }
 
                                 // Especifica o "target_address" e o "target_port" a serem removidos
-                                string targetAddressToRemove = cont_internal_ip; 
-                                string targetPortToRemove = cont_internal_port; 
+                                string targetAddressToRemove = cont_internal_ip;
+                                string targetPortToRemove = cont_internal_port;
 
                                 // Remove o objeto da lista de portas se o "target_address" e o "target_port" forem os especificados
                                 portsList.RemoveAll(portas =>
                                 {
-                                    dynamic dynamicPort = portas;
-                                    return dynamicPort.target_address == targetAddressToRemove && dynamicPort.target_port == targetPortToRemove;
+                                    string portTargetAddress = portas.GetProperty("target_address").GetString();
+                                    string portTargetPort = portas.GetProperty("target_port").GetString();
+                                    return portTargetAddress == targetAddressToRemove && portTargetPort == targetPortToRemove;
                                 });
 
                                 // Serializa a lista de portas de volta para uma string JSON
@@ -415,10 +416,9 @@ namespace PortController
                     }
 
 
-                   
                     // ----------------------------------------------- PUT --------------------------------------------
 
-                  
+
 
                     dynamic requestBodyObject = new
                     {
@@ -431,7 +431,7 @@ namespace PortController
 
                     // Converte o objeto dinâmico para uma string JSON
                     string requestBody = JsonSerializer.Serialize(requestBodyObject);
-
+                    Console.WriteLine("A ENVIAR: " + requestBody);
 
                     // Construir a solicitação PUT
                     string requestPath2 = $"/1.0/networks/lxdbr0/forwards/{host_ip}";
