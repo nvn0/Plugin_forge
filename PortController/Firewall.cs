@@ -6,6 +6,8 @@ using System.Threading.Tasks;
 using System.Diagnostics;
 using System.Net.Sockets;
 using System.Runtime.InteropServices.JavaScript;
+using System.Text;
+using System.Text.Json;
 
 namespace PortController
 {
@@ -14,25 +16,7 @@ namespace PortController
 
         // Esta class interage diretamente no sistema host
 
-        /*
-			IPTables é constituido por três tabelas (Filter table, Nat Table e Mangle Table)
-
-
-
-			Filter table tem ainda três chains (INPUT chain, OUTPUT Chain e FORWARD chain)
-
-			INPUT chain -> trafego que entra
-
-			Output chaint -> trafego que sai
-
-			FORWARD chain -> reencaminhar pacotes para outros dispositivos (ex. é como se fosse um router)
-
-
-			Esta classe foca apenas na Filter Table para filtrar trafego inbound e outbound.
-
-
-
-		 */
+       
 
         // Constantes
         private const string host_ip = "192.168.1.80";
@@ -73,8 +57,8 @@ namespace PortController
 		//função para defenir o comportamento default para negar o trafego que entra
 		public void DenyAllIn()
 		{
-			ExecuteCommand($"sudo iptables --policy INPUT DROP");
-			ExecuteCommand($"sudo /sbin/iptables-save");
+			ExecuteCommand($"doas iptables --policy INPUT DROP");
+			ExecuteCommand($"doas /sbin/iptables-save");
 		}
 
 
@@ -86,8 +70,8 @@ namespace PortController
 		*/
         public void DeleteRuleNumber(string rule_number)
         {
-            ExecuteCommand($"sudo iptables -D INPUT {rule_number}");
-            ExecuteCommand($"sudo /sbin/iptables-save");
+            ExecuteCommand($"doas iptables -D INPUT {rule_number}");
+            ExecuteCommand($"doas /sbin/iptables-save");
         }
 
 
@@ -172,7 +156,7 @@ namespace PortController
         // Caminho -> /var/lib/lxd/unix.socket
 
 
-        public void Lxd_api_forward(string req_type, string bridge_interface) //criar comandos de forward
+        private void Lxd_api_forward(string req_type, string bridge_interface, string host_ip, string sprotocol,string port, string cont_internal_ip, string cont_internal_port) //criar comandos de forward
         {
 
             // GET /1.0/networks/{networkName}/forwards
@@ -184,48 +168,91 @@ namespace PortController
 
             try
             {
-                // Endereço do Unix socket
+                // caminho do Unix socket
                 string socketPath = "/var/lib/lxd/unix.socket";
 
-                // Criar um novo socket Unix
+                // Criar unix socket
                 using (var socket = new Socket(AddressFamily.Unix, SocketType.Stream, ProtocolType.Unspecified))
                 {
-                    // Conectar ao Unix socket
+                    // Conectar ao socket
                     ConnectToUnixSocket(socket, socketPath);
 
-                    if (req_type == "GET")
-                    {
-                        // Enviar uma solicitação HTTP GET
-                        string requestPath = $"/1.0/networks/{bridge_interface}/forwards";
-                        string request = $"GET /1.0/networks/{bridge_interface}/forwards HTTP/1.1\r\nHost: dummy\r\n\r\n";
+                    // Enviar uma solicitação HTTP GET
+                    string requestPath1 = $"/1.0/networks/{bridge_interface}/forwards/{host_ip}";
+                    string request1 = $"GET {requestPath1} HTTP/1.1\r\nHost: dummy\r\n\r\n";
 
-                        // Enviar a solicitação
-                        byte[] requestBytes = Encoding.UTF8.GetBytes(request);
-                        socket.Send(requestBytes);
-
-                    }
-                    else if (req_type == "POST")
-                    {
-                        // Enviar uma solicitação HTTP POST
-
-                        // Conteúdo que deseja enviar no corpo do POST
-                        string postData = "param1=value1&param2=value2";
-
-                        // Construir a solicitação POST
-                        string networkName = "nome_da_rede";
-                        string requestPath = $"/1.0/networks/{networkName}/forwards";
-                        string request = $"POST {requestPath} HTTP/1.1\r\nHost: dummy\r\nContent-Length: {postData.Length}\r\n\r\n{postData}";
-
-                        byte[] requestBytes = Encoding.UTF8.GetBytes(request);
-                        socket.Send(requestBytes);
-
-                    }
+                    // Enviar a solicitação
+                    byte[] requestBytes1 = Encoding.UTF8.GetBytes(request1);
+                    socket.Send(requestBytes1);
 
                     // Receber resposta do socket
                     byte[] receiveBuffer = new byte[1024];
                     int receivedBytes = socket.Receive(receiveBuffer);
                     string responseData = Encoding.UTF8.GetString(receiveBuffer, 0, receivedBytes);
                     Console.WriteLine("Response from server: " + responseData);
+
+                    //------ Edição do JSON ------------------------
+
+                    var jsonDoc = JsonDocument.Parse(responseData);
+
+                    // Converte o JSON para um objeto dynamic
+                    dynamic jsonObject = JsonSerializer.Deserialize<dynamic>(jsonDoc);
+
+                    // Novo objeto para adicionar à lista de portas
+                    dynamic newPort = new
+                    {
+                        description = "",
+                        listen_port = port,
+                        protocol = sprotocol,
+                        target_address = cont_internal_ip,
+                        target_port = cont_internal_port
+                    };
+
+                    // Adiciona o novo objeto à lista de portos
+                    jsonObject["ports"].Add(newPort);
+
+                    // Converte o objeto JSON modificado de volta para uma string JSON
+                    //string modifiedJsonString = JsonSerializer.Serialize(jsonObject);
+
+                    // Imprime a string JSON modificada
+                    //Console.WriteLine(modifiedJsonString);
+
+                    // ----------------------------------------------- PUT --------------------------------------------
+
+                    //string portsPart = jsonObject["ports"];
+
+                    //string requestBody = @$"{{""config"":{{}},""description"":""Nat Redirect Ports"",""listen_address"":""{host_ip}"",""ports"":{portsPart}}}";
+
+
+                    dynamic requestBodyObject = new
+                    {
+                        config = new { },
+                        description = "",
+                        listen_address = host_ip,
+                        ports = jsonObject["ports"]
+                    };
+
+                    // Converte o objeto dinâmico para uma string JSON
+                    string requestBody = JsonSerializer.Serialize(requestBodyObject);
+
+
+                    // Construir a solicitação PUT
+                    string requestPath2 = $"/1.0/networks/lxdbr0/forwards/{host_ip}";
+                    string request2 = $"PUT {requestPath2} HTTP/1.1\r\nHost: dummy\r\nContent-Length: {Encoding.UTF8.GetBytes(requestBody).Length}\r\n\r\n{requestBody}";
+
+                    // Enviar a solicitação
+                    byte[] requestBytes2 = Encoding.UTF8.GetBytes(request2);
+                    socket.Send(requestBytes2);
+
+
+
+                    // Receber resposta do socket
+                    byte[] receiveBuffer2 = new byte[1024];
+                    int receivedBytes2 = socket.Receive(receiveBuffer2);
+                    string responseData2 = Encoding.UTF8.GetString(receiveBuffer2, 0, receivedBytes2);
+                    Console.WriteLine("Response from server: " + responseData2);
+
+                 
                 }
             }
             catch (Exception ex)
@@ -234,7 +261,270 @@ namespace PortController
             }
         }
 
-        static void ConnectToUnixSocket(Socket socket, string socketPath)
+        
+
+
+        private void Lxd_api_forward_remove(string bridge_interface, string host_ip, string protocol, string port, string cont_internal_ip, string cont_internal_port) //criar comandos de forward
+        {
+
+            // GET /1.0/networks/{networkName}/forwards
+            // GET /1.0/networks/{networkName}/forwards?recursion=1
+            // GET / 1.0 / networks /{ networkName}/ forwards /{ listenAddress}
+            // POST / 1.0 / networks /{ networkName}/ forwards
+            //PATCH /1.0/networks/{networkName}/forwards/{listenAddress}
+
+
+            try
+            {
+                // caminho do Unix socket
+                string socketPath = "/var/lib/lxd/unix.socket";
+
+                // Criar unix socket
+                using (var socket = new Socket(AddressFamily.Unix, SocketType.Stream, ProtocolType.Unspecified))
+                {
+                    // Conectar ao socket
+                    ConnectToUnixSocket(socket, socketPath);
+
+
+                    // Enviar uma solicitação HTTP GET
+                    string requestPath1 = $"/1.0/networks/{bridge_interface}/forwards/{host_ip}";
+                    string request1 = $"GET {requestPath1} HTTP/1.1\r\nHost: dummy\r\n\r\n";
+
+                    // Enviar a solicitação
+                    byte[] requestBytes1 = Encoding.UTF8.GetBytes(request1);
+                    socket.Send(requestBytes1);
+
+                    // Receber resposta do socket
+                    byte[] receiveBuffer = new byte[1024];
+                    int receivedBytes = socket.Receive(receiveBuffer);
+                    string responseData = Encoding.UTF8.GetString(receiveBuffer, 0, receivedBytes);
+                    Console.WriteLine("Response from server: " + responseData);
+
+                    //------ Edição do JSON ------------------------
+
+                    var jsonDoc = JsonDocument.Parse(responseData);
+
+                    // Converte o JSON para um objeto dynamic
+                    dynamic jsonObject = JsonSerializer.Deserialize<dynamic>(jsonDoc);
+
+                    // Lista para armazenar os portos modificados
+                    List<dynamic> modifiedPorts = new List<dynamic>();
+
+                    // Valores específicos para target_address e target_port
+                    string specificTargetAddress = cont_internal_ip;
+                    string specificTargetPort = cont_internal_port;
+
+                    // Verifica cada porta no JSON original
+                    foreach (var porta in jsonObject["ports"])
+                    {
+                        // Verifica se o target_address e o target_port correspondem aos valores específicos
+                        if (porta["target_address"] != specificTargetAddress || porta["target_port"] != specificTargetPort)
+                        {
+                            // Adiciona a porta à lista de portos modificados
+                            modifiedPorts.Add(porta);
+                        }
+                    }
+
+                    // Atualiza a lista de portos no JSON original
+                    //jsonObject["ports"] = modifiedPorts;
+
+                    // Converte o objeto JSON modificado de volta para uma string JSON
+                    //string modifiedJsonString = JsonSerializer.Serialize(jsonObject);
+
+                    // Imprime a string JSON modificada
+                    //Console.WriteLine(modifiedJsonString);
+
+                    // ----------------------------------------------- PUT --------------------------------------------
+
+                    //string portsPart = jsonObject["ports"];
+
+                    //string requestBody = @$"{{""config"":{{}},""description"":""Nat Redirect Ports"",""listen_address"":""{host_ip}"",""ports"":{portsPart}}}";
+
+
+                    dynamic requestBodyObject = new
+                    {
+                        config = new { },
+                        description = "",
+                        listen_address = host_ip,
+                        ports = jsonObject["ports"]           
+                    };
+
+                    // Converte o objeto dinâmico para uma string JSON
+                    string requestBody = JsonSerializer.Serialize(requestBodyObject);
+
+
+
+
+
+
+
+                    // Construir a solicitação PUT
+                    string requestPath2 = $"/1.0/networks/lxdbr0/forwards/{host_ip}";
+                    string request2 = $"PUT {requestPath2} HTTP/1.1\r\nHost: dummy\r\nContent-Length: {Encoding.UTF8.GetBytes(requestBody).Length}\r\n\r\n{requestBody}";
+
+                    // Enviar a solicitação
+                    byte[] requestBytes2 = Encoding.UTF8.GetBytes(request2);
+                    socket.Send(requestBytes2);
+
+                    
+
+                    // Receber resposta do socket
+                    byte[] receiveBuffer2 = new byte[1024];
+                    int receivedBytes2 = socket.Receive(receiveBuffer2);
+                    string responseData2 = Encoding.UTF8.GetString(receiveBuffer2, 0, receivedBytes2);
+                    Console.WriteLine("Response from server: " + responseData2);
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("Error: " + ex.Message);
+            }
+        }
+
+
+
+        private void Lxd_api_forward_reset(string bridge_interface, string host_ip) //criar comandos de forward
+        {
+
+            // GET /1.0/networks/{networkName}/forwards
+            // GET /1.0/networks/{networkName}/forwards?recursion=1
+            // GET / 1.0 / networks /{ networkName}/ forwards /{ listenAddress}
+            // POST / 1.0 / networks /{ networkName}/ forwards
+            //PATCH /1.0/networks/{networkName}/forwards/{listenAddress}
+
+
+            try
+            {
+                // caminho do Unix socket
+                string socketPath = "/var/lib/lxd/unix.socket";
+
+                // Criar unix socket
+                using (var socket = new Socket(AddressFamily.Unix, SocketType.Stream, ProtocolType.Unspecified))
+                {
+                    // Conectar ao socket
+                    ConnectToUnixSocket(socket, socketPath);
+
+
+                    int code = Lxd_api_forward_delete(bridge_interface, host_ip);
+
+                    if (code == 200)
+                    {
+
+                        //string portsPart = $@"[{{""description"":"""",""listen_port"":"""",""protocol"":"""",""target_address"":"""",""target_port"":""""}}]";
+
+                        //string requestBody = @$"{{""config"":{{}},""description"":""Nat Redirect Ports"",""listen_address"":""{host_ip}"",""ports"":{portsPart}}}";
+
+
+                        // Criar um objeto dinâmico para o formato especificado
+                        dynamic requestBodyObject = new
+                        {
+                            config = new { },
+                            description = "",
+                            listen_address = host_ip,
+                            ports = new[]
+                            {
+                                new
+                                {
+                                    description = "",
+                                    listen_port = "",
+                                    protocol = "",
+                                    target_address = "",
+                                    target_port = ""
+                                }
+                            }
+                        };
+
+                        // Converte o objeto dinâmico para uma string JSON
+                        string requestBody = JsonSerializer.Serialize(requestBodyObject);
+
+
+
+                        // Construir a solicitação POST
+                        string requestPath = $"/1.0/networks/{bridge_interface}/forwards";
+                        string request = $"POST {requestPath} HTTP/1.1\r\nHost: dummy\r\nContent-Length: {Encoding.UTF8.GetBytes(requestBody).Length}\r\n\r\n{requestBody}";
+
+                        // Enviar a solicitação
+                        byte[] requestBytes = Encoding.UTF8.GetBytes(request);
+                        socket.Send(requestBytes);
+
+
+
+                        // Receber resposta do socket
+                        byte[] receiveBuffer = new byte[1024];
+                        int receivedBytes = socket.Receive(receiveBuffer);
+                        string responseData = Encoding.UTF8.GetString(receiveBuffer, 0, receivedBytes);
+                        Console.WriteLine("Response from server: " + responseData);
+
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("Error: " + ex.Message);
+            }
+        }
+
+
+
+
+        private int Lxd_api_forward_delete(string bridge_interface, string host_ip) 
+        {
+
+            // GET /1.0/networks/{networkName}/forwards
+            // GET /1.0/networks/{networkName}/forwards?recursion=1
+            // GET / 1.0 / networks /{ networkName}/ forwards /{ listenAddress}
+            // POST / 1.0 / networks /{ networkName}/ forwards
+            //PATCH /1.0/networks/{networkName}/forwards/{listenAddress}
+
+
+            try
+            {
+                // caminho do Unix socket
+                string socketPath = "/var/lib/lxd/unix.socket";
+
+                // Criar unix socket
+                using (var socket = new Socket(AddressFamily.Unix, SocketType.Stream, ProtocolType.Unspecified))
+                {
+                    // Conectar ao socket
+                    ConnectToUnixSocket(socket, socketPath);
+
+                    // Enviar uma solicitação HTTP DELETE
+                    string requestPath = $"/1.0/networks/{bridge_interface}/forwards/{host_ip}";
+                    string request = $"DELETE {requestPath} HTTP/1.1\r\nHost: dummy\r\n\r\n";
+
+                    // Enviar a solicitação
+                    byte[] requestBytes = Encoding.UTF8.GetBytes(request);
+                    socket.Send(requestBytes);
+
+
+
+                    // Receber resposta do socket
+                    byte[] receiveBuffer = new byte[1024];
+                    int receivedBytes = socket.Receive(receiveBuffer);
+                    string responseData = Encoding.UTF8.GetString(receiveBuffer, 0, receivedBytes);
+                    Console.WriteLine("Response from server: " + responseData);
+
+                    // Analisar o JSON da resposta
+                    var jsonDoc = JsonDocument.Parse(responseData);
+                    var root = jsonDoc.RootElement;
+
+                    // Obter o status code da resposta
+                    int statusCode = root.GetProperty("metadata").GetProperty("status_code").GetInt32();
+                    //Console.WriteLine("Status code: " + statusCode);
+
+                    return statusCode;
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("Error: " + ex.Message);
+                return 0;
+            }
+        }
+
+
+
+        private static void ConnectToUnixSocket(Socket socket, string socketPath)
         {
             // Criar um objeto UnixDomainSocketEndPoint
             var endPoint = new UnixDomainSocketEndPoint(socketPath);
@@ -242,8 +532,6 @@ namespace PortController
             // Conectar ao Unix socket
             socket.Connect(endPoint);
         }
-
-
 
 
 
@@ -294,7 +582,7 @@ namespace PortController
 
         }
 
-        public void AddRuleNat(string firewall, string protocol, string port, string cont_internal_ip, string cont_internal_port, string rule = "")
+        public void AddRuleNat(string action, string firewall, string protocol, string port, string cont_internal_ip, string cont_internal_port, string rule = "")
         {
 
             string shost_ip = host_ip;
@@ -312,7 +600,7 @@ namespace PortController
             }
             else if (firewall == "lxdapi")
             {
-                Lxd_api_forward("POST", sbridge_interface);
+                Lxd_api_forward("PUT", sbridge_interface, shost_ip, protocol, port, cont_internal_ip, cont_internal_port);
 
             }
 

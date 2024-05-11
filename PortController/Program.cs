@@ -13,7 +13,9 @@ namespace PortController
 
         static void Main(string[] args)
         {
-           
+
+
+            Console.WriteLine("Port Controller v1.0");
 
             // Caminho do ficheiro do socket
             string socketPath = "/tmp/socket_proj";

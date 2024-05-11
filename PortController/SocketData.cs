@@ -96,13 +96,13 @@ namespace PortController
                 execRegra(receivedData.Action, receivedData.Fw, receivedData.Protocol, receivedData.Port, receivedData.Rule);
 
             } 
-            if (receivedData.Type == "host" && receivedData.Action == "AddNat")
+            if (receivedData.Type == "host" && receivedData.Action == "AddNat" || receivedData.Type == "host" && receivedData.Action == "RemoveNat")
             {
 
                 clientSocket.Shutdown(SocketShutdown.Both);
                 clientSocket.Close();
 
-                execRegraNat(receivedData.Fw, receivedData.Protocol, receivedData.Port, receivedData.Container_internal_ip, receivedData.Container_internal_port, receivedData.Rule);
+                execRegraNat(receivedData.Action, receivedData.Fw, receivedData.Protocol, receivedData.Port, receivedData.Container_internal_ip, receivedData.Container_internal_port, receivedData.Rule);
 
             }
             else
@@ -138,9 +138,9 @@ namespace PortController
 
 
 
-        private static void execRegraNat(dynamic firewall, dynamic protocol, dynamic port, dynamic cont_internal_ip, dynamic container_internal_port, dynamic rule)
+        private static void execRegraNat(dynamic action, dynamic firewall, dynamic protocol, dynamic port, dynamic cont_internal_ip, dynamic container_internal_port, dynamic rule)
         {
-            //string saction = action;
+            string saction = action;
             string sfw = firewall;
             string sprotocol = protocol;
             string sport = port;
