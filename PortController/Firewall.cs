@@ -201,7 +201,7 @@ namespace PortController
 
                     // Analisa o JSON do corpo da resposta
                     dynamic jsonResponseObject = JsonSerializer.Deserialize<dynamic>(responseBody);
-
+                    Console.WriteLine(jsonResponseObject);
 
 
                    // var jsonDoc = JsonDocument.Parse(responseData.);
