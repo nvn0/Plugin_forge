@@ -267,18 +267,10 @@ namespace PortController
                 
 
 
-                    // Converte o objeto JSON modificado de volta para uma string JSON
-                    //string modifiedJsonString = JsonSerializer.Serialize(jsonObject);
-
-                    // Imprime a string JSON modificada
-                    //Console.WriteLine(modifiedJsonString);
-
+                    
                     // ----------------------------------------------- PUT --------------------------------------------
 
-                    //string portsPart = jsonObject["ports"];
-
-                    //string requestBody = @$"{{""config"":{{}},""description"":""Nat Redirect Ports"",""listen_address"":""{host_ip}"",""ports"":{portsPart}}}";
-
+                   
 
                     dynamic requestBodyObject = new
                     {
