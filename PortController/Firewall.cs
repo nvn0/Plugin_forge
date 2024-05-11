@@ -240,8 +240,9 @@ namespace PortController
 
                                 // Adiciona o novo objeto à lista de portas
                                 portsList.Add(newPort);
+                                string portsJson = JsonSerializer.Serialize(portsList);
 
-                                Console.WriteLine("PORTAS: " + portsList);
+                                Console.WriteLine("PORTAS: " + portsJson);
 
                             }
                             else
