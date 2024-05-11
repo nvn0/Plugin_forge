@@ -205,20 +205,17 @@ namespace PortController
 
 
 
-                    // Tenta acessar a propriedade "ports"
-                    if (jsonResponseObject.TryGetProperty("ports", out JsonElement portsElement))
+                    // Verifica se o objeto contém a propriedade "metadata"
+                    if (jsonResponseObject is not null && jsonResponseObject.ContainsKey("metadata"))
                     {
-                        // Verifica se "ports" é de fato um array
-                        if (portsElement.ValueKind == JsonValueKind.Array)
-                        {
-                            // Obtém a lista de portas
-                            List<dynamic> portsList = new List<dynamic>();
+                        // Obtém o objeto "metadata"
+                        dynamic metadataObject = jsonResponseObject["metadata"];
 
-                            // Converte o elemento "ports" para uma lista de portas
-                            foreach (var portas in portsElement.EnumerateArray())
-                            {
-                                portsList.Add(portas);
-                            }
+                        // Verifica se "metadata" contém a propriedade "ports"
+                        if (metadataObject.ContainsKey("ports"))
+                        {
+                            // Obtém a lista de portas do objeto "metadata"
+                            List<dynamic> portsList = new List<dynamic>(metadataObject["ports"].EnumerateArray());
 
                             // Cria um novo objeto para adicionar à lista de portas
                             dynamic newPort = new
