@@ -517,8 +517,8 @@ namespace PortController
                             new
                             {
                                 description = "",
+                                protocol = "tcp",
                                 listen_port = "",
-                                protocol = "",
                                 target_address = "",
                                 target_port = ""
                             }
