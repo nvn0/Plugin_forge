@@ -380,16 +380,18 @@ namespace PortController
                                 // Especifica o "target_address" e o "target_port" a serem removidos
                                 string targetAddressToRemove = cont_internal_ip;
                                 string targetPortToRemove = cont_internal_port;
+                                string listenPortToRemove = port;
 
                                 // Converte o elemento "ports" para uma lista de portas
                                 foreach (JsonElement portas in portsElement.EnumerateArray())
                                 {
                                     // Verifica se o objeto contém ambas as propriedades "target_address" e "target_port"
                                     if (portas.TryGetProperty("target_address", out JsonElement targetAddressElement) &&
-                                        portas.TryGetProperty("target_port", out JsonElement targetPortElement))
+                                        portas.TryGetProperty("target_port", out JsonElement targetPortElement) &&
+                                        portas.TryGetProperty("listen_port", out JsonElement listenPortElement))
                                     {
                                         // Verifica se o "target_address" e o "target_port" correspondem aos especificados
-                                        if (targetAddressElement.GetString() == targetAddressToRemove && targetPortElement.GetString() == targetPortToRemove)
+                                        if (targetAddressElement.GetString() == targetAddressToRemove && targetPortElement.GetString() == targetPortToRemove && listenPortElement.GetString() == listenPortToRemove)
                                         {
                                             // Se corresponderem, não adicionamos esse objeto à lista de portas
                                             continue;
