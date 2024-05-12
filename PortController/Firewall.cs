@@ -400,9 +400,20 @@ namespace PortController
                                     portsList.Add(portas);
                                 }
 
-                                // Serializa a lista de portas de volta para uma string JSON
-                                string portsJson = JsonSerializer.Serialize(portsList);
-                                Console.WriteLine("Lista de portas em formato JSON após remoção: " + portsJson);
+
+                                // Verifica se algum objeto foi adicionado à lista de portas
+                                if (portsList.Count > 0)
+                                {
+                                    // Serializa a lista de portas de volta para uma string JSON
+                                    string portsJson = JsonSerializer.Serialize(portsList);
+                                    Console.WriteLine("Lista de portas em formato JSON após remoção: " + portsJson);
+
+                                    // Agora você pode usar a string JSON da lista de portas conforme necessário
+                                }
+                                else
+                                {
+                                    Console.WriteLine("Nenhum objeto adicionado à lista de portas após a remoção.");
+                                }
 
                                 // Agora você pode usar a string JSON da lista de portas conforme necessário
                             }
