@@ -504,7 +504,7 @@ namespace PortController
 
                     // ----------------------------------------------- PUT --------------------------------------------
 
-                    //List<JsonElement> portsList = new List<JsonElement>(); // lista vazia
+                    List<JsonElement> portsList = new List<JsonElement>(); // lista vazia
 
 
                     dynamic requestBodyObject = new
@@ -512,17 +512,7 @@ namespace PortController
                         config = new { },
                         description = "",
                         listen_address = host_ip,
-                        ports = new[]
-                        {
-                            new
-                            {
-                                description = "",
-                                protocol = "tcp",
-                                listen_port = "",
-                                target_address = "",
-                                target_port = ""
-                            }
-                        }
+                        ports = portsList       
                     };
 
 
