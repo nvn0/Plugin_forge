@@ -547,61 +547,7 @@ namespace PortController
 
 
 
-        private int Lxd_api_forward_delete(string bridge_interface, string host_ip) 
-        {
-
-            // GET /1.0/networks/{networkName}/forwards
-            // GET /1.0/networks/{networkName}/forwards?recursion=1
-            // GET / 1.0 / networks /{ networkName}/ forwards /{ listenAddress}
-            // POST / 1.0 / networks /{ networkName}/ forwards
-            //PATCH /1.0/networks/{networkName}/forwards/{listenAddress}
-
-
-            try
-            {
-                // caminho do Unix socket
-                string socketPath = "/var/lib/lxd/unix.socket";
-
-                // Criar unix socket
-                using (var socket = new Socket(AddressFamily.Unix, SocketType.Stream, ProtocolType.Unspecified))
-                {
-                    // Conectar ao socket
-                    ConnectToUnixSocket(socket, socketPath);
-
-                    // Enviar uma solicitação HTTP DELETE
-                    string requestPath = $"/1.0/networks/{bridge_interface}/forwards/{host_ip}";
-                    string request = $"DELETE {requestPath} HTTP/1.1\r\nHost: dummy\r\n\r\n";
-
-                    // Enviar a solicitação
-                    byte[] requestBytes = Encoding.UTF8.GetBytes(request);
-                    socket.Send(requestBytes);
-
-
-
-                    // Receber resposta do socket
-                    byte[] receiveBuffer = new byte[1024];
-                    int receivedBytes = socket.Receive(receiveBuffer);
-                    string responseData = Encoding.UTF8.GetString(receiveBuffer, 0, receivedBytes);
-                    Console.WriteLine("Response from server: " + responseData);
-
-                    // Analisar o JSON da resposta
-                    var jsonDoc = JsonDocument.Parse(responseData);
-                    var root = jsonDoc.RootElement;
-
-                    // Obter o status code da resposta
-                    int statusCode = root.GetProperty("status_code").GetInt32();
-                    Console.WriteLine("Status code do DELETE: " + statusCode);
-
-                    return statusCode;
-                }
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine("Error: " + ex.Message);
-                return 0;
-            }
-        }
-
+       
 
 
         private static void ConnectToUnixSocket(Socket socket, string socketPath)
