@@ -373,26 +373,32 @@ namespace PortController
                         {
 
 
-                            // Verifica se "ports" é de fato um array
                             if (portsElement.ValueKind == JsonValueKind.Array)
                             {
-                                // Converte o elemento "ports" para uma lista de portas
-                                foreach (JsonElement portas in portsElement.EnumerateArray())
-                                {
-                                    portsList.Add(portas);
-                                }
+                               
 
                                 // Especifica o "target_address" e o "target_port" a serem removidos
                                 string targetAddressToRemove = cont_internal_ip;
                                 string targetPortToRemove = cont_internal_port;
 
-                                // Remove o objeto da lista de portas se o "target_address" e o "target_port" forem os especificados
-                                portsList.RemoveAll(portas =>
+                                // Converte o elemento "ports" para uma lista de portas
+                                foreach (JsonElement portas in portsElement.EnumerateArray())
                                 {
-                                    string portTargetAddress = portas.GetProperty("target_address").GetString();
-                                    string portTargetPort = portas.GetProperty("target_port").GetString();
-                                    return portTargetAddress == targetAddressToRemove && portTargetPort == targetPortToRemove;
-                                });
+                                    // Verifica se o objeto contém ambas as propriedades "target_address" e "target_port"
+                                    if (portas.TryGetProperty("target_address", out JsonElement targetAddressElement) &&
+                                        portas.TryGetProperty("target_port", out JsonElement targetPortElement))
+                                    {
+                                        // Verifica se o "target_address" e o "target_port" correspondem aos especificados
+                                        if (targetAddressElement.GetString() == targetAddressToRemove && targetPortElement.GetString() == targetPortToRemove)
+                                        {
+                                            // Se corresponderem, não adicionamos esse objeto à lista de portas
+                                            continue;
+                                        }
+                                    }
+
+                                    // Adiciona o objeto à lista de portas
+                                    portsList.Add(portas);
+                                }
 
                                 // Serializa a lista de portas de volta para uma string JSON
                                 string portsJson = JsonSerializer.Serialize(portsList);
@@ -400,6 +406,7 @@ namespace PortController
 
                                 // Agora você pode usar a string JSON da lista de portas conforme necessário
                             }
+
                             else
                             {
                                 Console.WriteLine("A propriedade 'ports' em 'metadata' não é um array.");
