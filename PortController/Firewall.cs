@@ -501,13 +501,10 @@ namespace PortController
 
 
                     int code = Lxd_api_forward_delete(bridge_interface, host_ip);
+                    Console.WriteLine("Codigo do delete" + code);
 
                     if (code == 200)
                     {
-
-                        //string portsPart = $@"[{{""description"":"""",""listen_port"":"""",""protocol"":"""",""target_address"":"""",""target_port"":""""}}]";
-
-                        //string requestBody = @$"{{""config"":{{}},""description"":""Nat Redirect Ports"",""listen_address"":""{host_ip}"",""ports"":{portsPart}}}";
 
 
                         // Criar um objeto dinâmico para o formato especificado
@@ -531,6 +528,7 @@ namespace PortController
 
                         // Converte o objeto dinâmico para uma string JSON
                         string requestBody = JsonSerializer.Serialize(requestBodyObject);
+                        Console.WriteLine("A enviar:" + requestBody);
 
 
 
@@ -605,7 +603,7 @@ namespace PortController
 
                     // Obter o status code da resposta
                     int statusCode = root.GetProperty("metadata").GetProperty("status_code").GetInt32();
-                    //Console.WriteLine("Status code: " + statusCode);
+                    //Console.WriteLine("Status code do DELETE: " + statusCode);
 
                     return statusCode;
                 }
