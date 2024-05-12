@@ -500,56 +500,53 @@ namespace PortController
                     ConnectToUnixSocket(socket, socketPath);
 
 
-                    int code = Lxd_api_forward_delete(bridge_interface, host_ip);
-                    Console.WriteLine("Codigo do delete" + code);
+                   
 
-                    if (code == 200)
+                    // ----------------------------------------------- PUT --------------------------------------------
+
+                    //List<JsonElement> portsList = new List<JsonElement>(); // lista vazia
+
+
+                    dynamic requestBodyObject = new
                     {
-
-
-                        // Criar um objeto dinâmico para o formato especificado
-                        dynamic requestBodyObject = new
+                        config = new { },
+                        description = "",
+                        listen_address = host_ip,
+                        ports = new[]
                         {
-                            config = new { },
-                            description = "",
-                            listen_address = host_ip,
-                            ports = new[]
+                            new
                             {
-                                new
-                                {
-                                    description = "",
-                                    listen_port = "",
-                                    protocol = "",
-                                    target_address = "",
-                                    target_port = ""
-                                }
+                                description = "",
+                                listen_port = "",
+                                protocol = "",
+                                target_address = "",
+                                target_port = ""
                             }
-                        };
-
-                        // Converte o objeto dinâmico para uma string JSON
-                        string requestBody = JsonSerializer.Serialize(requestBodyObject);
-                        Console.WriteLine("A enviar:" + requestBody);
+                        }
+                    };
 
 
+                    // Converte o objeto dinâmico para uma string JSON
+                    string requestBody = JsonSerializer.Serialize(requestBodyObject);
+                    Console.WriteLine("A ENVIAR: " + requestBody);
 
-                        // Construir a solicitação POST
-                        string requestPath = $"/1.0/networks/{bridge_interface}/forwards";
-                        string request = $"POST {requestPath} HTTP/1.1\r\nHost: dummy\r\nContent-Length: {Encoding.UTF8.GetBytes(requestBody).Length}\r\n\r\n{requestBody}";
+                    // Construir a solicitação PUT
+                    string requestPath2 = $"/1.0/networks/lxdbr0/forwards/{host_ip}";
+                    string request2 = $"PUT {requestPath2} HTTP/1.1\r\nHost: dummy\r\nContent-Length: {Encoding.UTF8.GetBytes(requestBody).Length}\r\n\r\n{requestBody}";
 
-                        // Enviar a solicitação
-                        byte[] requestBytes = Encoding.UTF8.GetBytes(request);
-                        socket.Send(requestBytes);
+                    // Enviar a solicitação
+                    byte[] requestBytes2 = Encoding.UTF8.GetBytes(request2);
+                    socket.Send(requestBytes2);
 
 
 
-                        // Receber resposta do socket
-                        byte[] receiveBuffer = new byte[1024];
-                        int receivedBytes = socket.Receive(receiveBuffer);
-                        string responseData = Encoding.UTF8.GetString(receiveBuffer, 0, receivedBytes);
-                        Console.WriteLine("Response from server: " + responseData);
-
-                    }
+                    // Receber resposta do socket
+                    byte[] receiveBuffer2 = new byte[1024];
+                    int receivedBytes2 = socket.Receive(receiveBuffer2);
+                    string responseData2 = Encoding.UTF8.GetString(receiveBuffer2, 0, receivedBytes2);
+                    Console.WriteLine("Response from server: " + responseData2);
                 }
+                
             }
             catch (Exception ex)
             {
