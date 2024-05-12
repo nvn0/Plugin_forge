@@ -602,8 +602,8 @@ namespace PortController
                     var root = jsonDoc.RootElement;
 
                     // Obter o status code da resposta
-                    int statusCode = root.GetProperty("metadata").GetProperty("status_code").GetInt32();
-                    //Console.WriteLine("Status code do DELETE: " + statusCode);
+                    int statusCode = root.GetProperty("status_code").GetInt32();
+                    Console.WriteLine("Status code do DELETE: " + statusCode);
 
                     return statusCode;
                 }
