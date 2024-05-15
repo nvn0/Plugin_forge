@@ -24,23 +24,22 @@ namespace PortController
 
 
 
-        // função para de defenir uma regra personalizada
-        /*
-        public void AddRule(string rule)
+        // função para de defenir uma regra personalizada 
+        public void iptCustomRule(string rule)
         {
-            ExecuteCommand($"sudo iptables -A {rule} && \"sudo /sbin/iptables-save"); // -A para adicionar no fundo da lista ou -I para adicionar ao topo da lista
-			//ExecuteCommand($"sudo /sbin/iptables-save");
+            ExecuteCommand($"iptables -A {rule} && /sbin/iptables-save"); // -A para adicionar no fundo da lista ou -I para adicionar ao topo da lista
+			//ExecuteCommand($"/sbin/iptables-save");
         }
-        */
+        
 
         public void OpenPort(string protocol, string port)
         {
-            ExecuteCommand($"doas iptables -A  INPUT -p {protocol} --dport {port} -j ACCEPT && doas /sbin/iptables-save");
+            ExecuteCommand($"iptables -A  INPUT -p {protocol} --dport {port} -j ACCEPT && /sbin/iptables-save");
         }
 
         public void ClosePort( string protocol, string port)
         {
-            ExecuteCommand($"doas iptables -A  INPUT -p {protocol} --dport {port} -j DROP && doas /sbin/iptables-save");
+            ExecuteCommand($"iptables -A  INPUT -p {protocol} --dport {port} -j DROP && /sbin/iptables-save");
         }
 
 
@@ -48,16 +47,16 @@ namespace PortController
         // Esta função define a regra para aceitar conexoes ssh de entrada de qualquer ip
         public void AllowSshIn()
 		{
-			ExecuteCommand($"doas iptables -I INPUT -p tcp --dport 22 -j ACCEPT");
-			ExecuteCommand($"doas /sbin/iptables-save");
+			ExecuteCommand($"iptables -I INPUT -p tcp --dport 22 -j ACCEPT && /sbin/iptables-save");
+			//ExecuteCommand($"/sbin/iptables-save");
 		}
 		
 
 		//função para defenir o comportamento default para negar o trafego que entra
 		public void DenyAllIn()
 		{
-			ExecuteCommand($"doas iptables --policy INPUT DROP");
-			ExecuteCommand($"doas /sbin/iptables-save");
+			ExecuteCommand($"iptables --policy INPUT DROP && /sbin/iptables-save");
+			//ExecuteCommand($"/sbin/iptables-save");
 		}
 
 
@@ -69,8 +68,8 @@ namespace PortController
 		*/
         public void DeleteRuleNumber(string rule_number)
         {
-            ExecuteCommand($"doas iptables -D INPUT {rule_number}");
-            ExecuteCommand($"doas /sbin/iptables-save");
+            ExecuteCommand($"iptables -D INPUT {rule_number} && /sbin/iptables-save");
+            //ExecuteCommand($"/sbin/iptables-save");
         }
 
 
@@ -644,6 +643,9 @@ namespace PortController
             }
 
         }
+
+        //------------------------------------------- Executar comandos -----------------------------------------------------
+
 
         // função para criar um processo e executar comandos
         private string ExecuteCommand(string command)

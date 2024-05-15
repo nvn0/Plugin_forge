@@ -90,7 +90,7 @@ namespace PortController
             if (receivedData.Type == "host" && receivedData.Action != "AddNat")
             {
 
-                clientSocket.Shutdown(SocketShutdown.Both);
+                //clientSocket.Shutdown(SocketShutdown.Both);
                 clientSocket.Close();
 
                 execRegra(receivedData.Action, receivedData.Fw, receivedData.Protocol, receivedData.Port, receivedData.Rule);
@@ -107,7 +107,7 @@ namespace PortController
             }
             else
             {
-                clientSocket.Shutdown(SocketShutdown.Both);
+                //clientSocket.Shutdown(SocketShutdown.Both);
                 clientSocket.Close();
 
                 execRegraContainer(receivedData.Container, receivedData.Type, receivedData.Action, receivedData.Fw, receivedData.Protocol, receivedData.Port, receivedData.Rule);

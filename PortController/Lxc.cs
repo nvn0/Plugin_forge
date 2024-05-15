@@ -125,7 +125,7 @@ namespace PortController
             }
             else if (firewall == "ipt" && action == "ExecCmd" && rule != "")
             {
-                ExecuteCommand($"lxc exec {container_name} -- sudo iptables -A {rule} && sudo /sbin/iptables-save");
+                ExecuteCommand($"lxc exec {container_name} -- iptables -A {rule} && /sbin/iptables-save");
                 //ExecuteCommand($"lxc exec {container_name} -- sudo /sbin/iptables-save");
             }
             else if (firewall == "nft" && action == "ExecCmd" && rule != "")
