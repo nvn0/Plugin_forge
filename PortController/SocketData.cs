@@ -53,7 +53,7 @@ namespace PortController
             // Imprime os dados recebidos
             Console.WriteLine("Dados recebidos do client:");
             Console.WriteLine($"Nome: {receivedData.Container}");
-            Console.WriteLine($"Tipo: {receivedData.Type}");
+            Console.WriteLine($"Type: {receivedData.Type}");
             Console.WriteLine($"Firewall: {receivedData.Fw}");
             Console.WriteLine($"Ação: {receivedData.Action}");
             Console.WriteLine($"Protocol: {receivedData.Protocol}");
@@ -87,7 +87,7 @@ namespace PortController
                 byte[] responseBytes = Encoding.UTF8.GetBytes(responseJson);
                 clientSocket.Send(responseBytes);
             }
-            if (receivedData.Type == "host" && receivedData.Action != "AddNat")
+            if (receivedData.Type == "host" && receivedData.Action == "Closeport" || receivedData.Type == "host" && receivedData.Action == "OpenPortport")
             {
 
                 //clientSocket.Shutdown(SocketShutdown.Both);
@@ -105,7 +105,7 @@ namespace PortController
                 execRegraNat(receivedData.Action, receivedData.Fw, receivedData.Protocol, receivedData.Port, receivedData.Container_internal_ip, receivedData.Container_internal_port, receivedData.Rule);
 
             }
-            else
+            if (receivedData.Type == "lxc" || receivedData.Type == "incus")
             {
                 //clientSocket.Shutdown(SocketShutdown.Both);
                 clientSocket.Close();
@@ -116,9 +116,9 @@ namespace PortController
             clientSocket.Close();
         }
 
-
+        // ########################################################################################################################
         // -------------------------------------------------------- host --------------------------------------------------------
-
+        // ########################################################################################################################
 
 
         private static void execRegra(dynamic action, dynamic firewall, dynamic protocol, dynamic port, dynamic rule)
@@ -154,7 +154,13 @@ namespace PortController
             fw.AddRuleNat(saction, sfw, sprotocol, sport, scont_internal_ip, scont_internal_port, srule);
 
         }
-        // ------------------------------------------------------ Containers -----------------------------------------------------------
+
+
+        // ###################################################################################################################################################
+        // ------------------------------------------------------      Containers    -------------------------------------------------------------------------
+        // ###################################################################################################################################################
+
+
 
         private static void execRegraContainer(dynamic name, dynamic type, dynamic action, dynamic firewall, dynamic protocol, dynamic port, dynamic rule)
         {
@@ -282,12 +288,6 @@ namespace PortController
                     string[] array2 = { "1" };
                     return array2;
 
-                    break;
-                case "docker":
-                    Console.WriteLine("Opção 3 selecionada.");
-
-                    string[] array3 = { "1" };
-                    return array3;
                     break;
                 default:
                     Console.WriteLine("Opção inválida. (GetInfoPortsContainer)");

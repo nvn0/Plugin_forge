@@ -154,6 +154,7 @@ namespace PortController
         // Caminho -> /var/lib/lxd/unix.socket
 
 
+        // Cria associação de portas entre as do host e as de um container para reencaminhar trafego
         private void Lxd_api_forward(string bridge_interface, string host_ip, string sprotocol,string port, string cont_internal_ip, string cont_internal_port) //criar comandos de forward
         {
 
