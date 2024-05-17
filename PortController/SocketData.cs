@@ -59,8 +59,8 @@ namespace PortController
             Console.WriteLine($"Protocol: {receivedData.Protocol}");
             Console.WriteLine($"Porta: {receivedData.Port}");
             Console.WriteLine($"external_ip: {receivedData.External_ip}");
-            Console.WriteLine($"Container_internal_port: {receivedData.Container_internal_port}");
             Console.WriteLine($"Container_internal_ip: {receivedData.Container_internal_ip}");
+            Console.WriteLine($"Container_internal_port: {receivedData.Container_internal_port}");
             Console.WriteLine($"Rule: {receivedData.Rule}");
 
            
