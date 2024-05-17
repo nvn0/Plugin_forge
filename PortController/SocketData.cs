@@ -58,8 +58,9 @@ namespace PortController
             Console.WriteLine($"Ação: {receivedData.Action}");
             Console.WriteLine($"Protocol: {receivedData.Protocol}");
             Console.WriteLine($"Porta: {receivedData.Port}");
-            Console.WriteLine($"Container_internal_ip: {receivedData.Container_internal_ip}");
+            Console.WriteLine($"external_ip: {receivedData.External_ip}");
             Console.WriteLine($"Container_internal_port: {receivedData.Container_internal_port}");
+            Console.WriteLine($"Container_internal_ip: {receivedData.Container_internal_ip}");
             Console.WriteLine($"Rule: {receivedData.Rule}");
 
            
@@ -102,7 +103,7 @@ namespace PortController
                 //clientSocket.Shutdown(SocketShutdown.Both);
                 clientSocket.Close();
 
-                execRegraNat(receivedData.Action, receivedData.Fw, receivedData.Protocol, receivedData.Port, receivedData.Container_internal_ip, receivedData.Container_internal_port, receivedData.Rule);
+                execRegraNat(receivedData.Action, receivedData.Fw, receivedData.Protocol, receivedData.Port, receivedData.External_ip, receivedData.Container_internal_ip, receivedData.Container_internal_port, receivedData.Rule);
 
             }
             if (receivedData.Type == "lxc" || receivedData.Type == "incus")
@@ -138,12 +139,13 @@ namespace PortController
 
 
 
-        private static void execRegraNat(dynamic action, dynamic firewall, dynamic protocol, dynamic port, dynamic cont_internal_ip, dynamic container_internal_port, dynamic rule)
+        private static void execRegraNat(dynamic action, dynamic firewall, dynamic protocol, dynamic port, dynamic external_ip, dynamic cont_internal_ip, dynamic container_internal_port, dynamic rule)
         {
             string saction = action;
             string sfw = firewall;
             string sprotocol = protocol;
             string sport = port;
+            string sexternal_ip = external_ip;
             string scont_internal_ip = cont_internal_ip;
             string scont_internal_port = container_internal_port;
             string srule = rule;
@@ -151,7 +153,7 @@ namespace PortController
 
             Firewall fw = new Firewall();
 
-            fw.AddRuleNat(saction, sfw, sprotocol, sport, scont_internal_ip, scont_internal_port, srule);
+            fw.AddRuleNat(saction, sfw, sprotocol, sport, sexternal_ip, scont_internal_ip, scont_internal_port, srule);
 
         }
 

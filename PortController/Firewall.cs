@@ -101,10 +101,10 @@ namespace PortController
 
 
 
-        public void Lxc_forward(string bridge_interface, string host_ip, string porta_exterior, string porta_container, string ip_container, string protocol)
+        public void Lxc_forward(string bridge_interface, string porta_exterior, string external_ip, string porta_container, string ip_container, string protocol)
         {
             //ExecuteCommand($"doas lxc network forward create {bridge_interface} {host_ip}"); // -> executar apena uma vez
-            ExecuteCommand($"lxc network forward port add {bridge_interface} {host_ip} {protocol} {porta_exterior} {ip_container} {porta_container}");
+            ExecuteCommand($"lxc network forward port add {bridge_interface} {external_ip} {protocol} {porta_exterior} {ip_container} {porta_container}");
 
         }
 
@@ -127,15 +127,19 @@ namespace PortController
 
 
 
-
-        public void criar_ligação(string porta_exterior, string porta_container, string ip_container, string protocol)
+        /*
+        public void criar_ligação(string porta_exterior, string porta_container, string ip_container, string protocol) // usa o ip exerto do host
         {
             ExecuteCommand($"iptables -t nat -I PREROUTING -p {protocol} --dport {porta_exterior} -j DNAT --to-destination {ip_container}:{porta_container} && doas /sbin/iptables-save");
 
         }
+        */
 
+        public void criar_ligação(string porta_exterior, string external_ip, string porta_container, string ip_container, string protocol) 
+        {
+            ExecuteCommand($"iptables -t nat -I PREROUTING -p {protocol} --dport {porta_exterior} -d {external_ip} -j DNAT --to-destination {ip_container}:{porta_container} && doas /sbin/iptables-save");
 
-
+        }
 
 
 
@@ -155,7 +159,7 @@ namespace PortController
 
 
         // Cria associação de portas entre as do host e as de um container para reencaminhar trafego
-        private void Lxd_api_forward(string bridge_interface, string host_ip, string sprotocol,string port, string cont_internal_ip, string cont_internal_port) //criar comandos de forward
+        private void Lxd_api_forward(string bridge_interface, string sprotocol,string port, string external_ip, string cont_internal_ip, string cont_internal_port) //criar comandos de forward
         {
 
             // GET /1.0/networks/{networkName}/forwards
@@ -178,7 +182,7 @@ namespace PortController
                     ConnectToUnixSocket(socket, socketPath);
 
                     // Enviar uma solicitação HTTP GET
-                    string requestPath1 = $"/1.0/networks/{bridge_interface}/forwards/{host_ip}";
+                    string requestPath1 = $"/1.0/networks/{bridge_interface}/forwards/{external_ip}";
                     string request1 = $"GET {requestPath1} HTTP/1.1\r\nHost: dummy\r\n\r\n";
 
                     // Enviar a solicitação
@@ -275,7 +279,7 @@ namespace PortController
                     {
                         config = new { },
                         description = "",
-                        listen_address = host_ip,
+                        listen_address = external_ip,
                         ports = portsList
                     };
 
@@ -284,7 +288,7 @@ namespace PortController
                     Console.WriteLine("enviar: " + requestBody);
 
                     // Construir a solicitação PUT
-                    string requestPath2 = $"/1.0/networks/lxdbr0/forwards/{host_ip}";
+                    string requestPath2 = $"/1.0/networks/lxdbr0/forwards/{external_ip}";
                     string request2 = $"PUT {requestPath2} HTTP/1.1\r\nHost: dummy\r\nContent-Length: {Encoding.UTF8.GetBytes(requestBody).Length}\r\n\r\n{requestBody}";
 
                     // Enviar a solicitação
@@ -311,7 +315,7 @@ namespace PortController
         
 
 
-        private void Lxd_api_forward_remove(string bridge_interface, string host_ip, string protocol, string port, string cont_internal_ip, string cont_internal_port) //criar comandos de forward
+        private void Lxd_api_forward_remove(string bridge_interface, string protocol, string port, string external_ip, string cont_internal_ip, string cont_internal_port) //criar comandos de forward
         {
 
             // GET /1.0/networks/{networkName}/forwards
@@ -335,7 +339,7 @@ namespace PortController
 
 
                     // Enviar uma solicitação HTTP GET
-                    string requestPath1 = $"/1.0/networks/{bridge_interface}/forwards/{host_ip}";
+                    string requestPath1 = $"/1.0/networks/{bridge_interface}/forwards/{external_ip}";
                     string request1 = $"GET {requestPath1} HTTP/1.1\r\nHost: dummy\r\n\r\n";
 
                     // Enviar a solicitação
@@ -444,7 +448,7 @@ namespace PortController
                     {
                         config = new { },
                         description = "",
-                        listen_address = host_ip,
+                        listen_address = external_ip,
                         ports = portsList
                     };
 
@@ -454,7 +458,7 @@ namespace PortController
                     Console.WriteLine("A ENVIAR: " + requestBody);
 
                     // Construir a solicitação PUT
-                    string requestPath2 = $"/1.0/networks/lxdbr0/forwards/{host_ip}";
+                    string requestPath2 = $"/1.0/networks/lxdbr0/forwards/{external_ip}";
                     string request2 = $"PUT {requestPath2} HTTP/1.1\r\nHost: dummy\r\nContent-Length: {Encoding.UTF8.GetBytes(requestBody).Length}\r\n\r\n{requestBody}";
 
                     // Enviar a solicitação
@@ -478,7 +482,7 @@ namespace PortController
 
 
 
-        private void Lxd_api_forward_reset(string bridge_interface, string host_ip) //criar comandos de forward
+        private void Lxd_api_forward_reset(string bridge_interface, string external_ip) //reset forward
         {
 
             // GET /1.0/networks/{networkName}/forwards
@@ -511,7 +515,7 @@ namespace PortController
                     {
                         config = new { },
                         description = "",
-                        listen_address = host_ip,
+                        listen_address = external_ip,
                         ports = portsList       
                     };
 
@@ -521,7 +525,7 @@ namespace PortController
                     Console.WriteLine("A ENVIAR: " + requestBody);
 
                     // Construir a solicitação PUT
-                    string requestPath2 = $"/1.0/networks/lxdbr0/forwards/{host_ip}";
+                    string requestPath2 = $"/1.0/networks/lxdbr0/forwards/{external_ip}";
                     string request2 = $"PUT {requestPath2} HTTP/1.1\r\nHost: dummy\r\nContent-Length: {Encoding.UTF8.GetBytes(requestBody).Length}\r\n\r\n{requestBody}";
 
                     // Enviar a solicitação
@@ -608,7 +612,7 @@ namespace PortController
 
         }
 
-        public void AddRuleNat(string action, string firewall, string protocol, string port, string cont_internal_ip, string cont_internal_port, string rule = "")
+        public void AddRuleNat(string action, string firewall, string protocol, string port, string external_ip, string cont_internal_ip, string cont_internal_port, string rule = "")
         {
 
             string shost_ip = host_ip;
@@ -617,29 +621,29 @@ namespace PortController
             if (firewall == "ipt" && action == "AddNat")
             {
                 Console.WriteLine("opc 1");
-                criar_ligação(port, cont_internal_port, cont_internal_ip, protocol);
+                criar_ligação(port, external_ip, cont_internal_port, cont_internal_ip, protocol);
             }
             else if (firewall == "lxdforward" && action == "AddNat")
             {
                 Console.WriteLine("opc 2");
-                Lxc_forward(sbridge_interface, shost_ip, port, cont_internal_port, cont_internal_ip, protocol);
+                Lxc_forward(sbridge_interface, port, external_ip, cont_internal_port, cont_internal_ip, protocol);
             }
             else if (firewall == "lxdapi" && action == "AddNat")
             {
                 Console.WriteLine("opc 3");
-                Lxd_api_forward(sbridge_interface, shost_ip, protocol, port, cont_internal_ip, cont_internal_port);
+                Lxd_api_forward(sbridge_interface, protocol, port, external_ip, cont_internal_ip, cont_internal_port);
 
             }
             else if (firewall == "lxdapi" && action == "RemoveNat")
             {
                 Console.WriteLine("opc 4");
-                Lxd_api_forward_remove(sbridge_interface, shost_ip, protocol, port, cont_internal_ip, cont_internal_port);
+                Lxd_api_forward_remove(sbridge_interface, protocol, port, external_ip, cont_internal_ip, cont_internal_port);
 
             }
             else if (firewall == "lxdapi" && action == "ResetNat")
             {
                 Console.WriteLine("reset nat");
-                Lxd_api_forward_reset(sbridge_interface, shost_ip);
+                Lxd_api_forward_reset(sbridge_interface, external_ip);
 
             }
 
