@@ -60,7 +60,7 @@ namespace PortController
             Console.WriteLine($"Firewall: {receivedData.Fw}");
             Console.WriteLine($"Protocol: {receivedData.Protocol}");
             Console.WriteLine($"Port: {receivedData.Port}");
-            Console.WriteLine($"external_ip: {receivedData.External_ip}");
+            Console.WriteLine($"External_ip: {receivedData.External_ip}");
             Console.WriteLine($"Container_internal_ip: {receivedData.Container_internal_ip}");
             Console.WriteLine($"Container_internal_port: {receivedData.Container_internal_port}");
             Console.WriteLine($"Rule: {receivedData.Rule}");
