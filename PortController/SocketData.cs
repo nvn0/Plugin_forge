@@ -72,7 +72,7 @@ namespace PortController
             string sprotocol = receivedData.Protocol;
             string sport = receivedData.Port;
             string sexternal_ip = receivedData.External_ip;
-            string scont_internal_ip = receivedData.Cont_internal_ip;
+            string scont_internal_ip = receivedData.Container_internal_ip;
             string scont_internal_port = receivedData.Container_internal_port;
             string srule = receivedData.Rule;
 
