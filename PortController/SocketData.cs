@@ -92,7 +92,7 @@ namespace PortController
                 clientSocket.Send(responseBytes);
                 */
             }
-            if (receivedData.Type == "host" && receivedData.Action == "Closeport" || receivedData.Type == "host" && receivedData.Action == "OpenPortport")
+            if (receivedData.Type == "host" && receivedData.Action == "ClosePort" || receivedData.Type == "host" && receivedData.Action == "OpenPort" || receivedData.Type == "host" && receivedData.Action == "ExecCmd")
             {
 
                 //clientSocket.Shutdown(SocketShutdown.Both);

@@ -25,19 +25,19 @@ namespace PortController
 
 
         // função para de defenir uma regra personalizada 
-        public void iptCustomRule(string rule)
+        private void iptCustomRule(string rule)
         {
             ExecuteCommand($"iptables -I {rule} && /sbin/iptables-save"); // -A para adicionar no fundo da lista ou -I para adicionar ao topo da lista
 			//ExecuteCommand($"/sbin/iptables-save");
         }
         
 
-        public void OpenPort(string protocol, string port)
+        private void OpenPort(string protocol, string port)
         {
             ExecuteCommand($"iptables -A  INPUT -p {protocol} --dport {port} -j ACCEPT && /sbin/iptables-save");
         }
 
-        public void ClosePort( string protocol, string port)
+        private void ClosePort( string protocol, string port)
         {
             ExecuteCommand($"iptables -A  INPUT -p {protocol} --dport {port} -j DROP && /sbin/iptables-save");
         }
@@ -602,8 +602,8 @@ namespace PortController
             }
             else if (firewall == "ipt" && action == "ExecCmd" && rule != "")
             {
-                ExecuteCommand($"sudo iptables -A {rule} && sudo /sbin/iptables-save");
-                //ExecuteCommand($"lxc exec {container_name} -- sudo /sbin/iptables-save");
+                iptCustomRule(rule);
+                
             }
             else if (firewall == "nft" && action == "ExecCmd" && rule != "")
             {
@@ -649,8 +649,10 @@ namespace PortController
 
         }
 
-        //------------------------------------------- Executar comandos -----------------------------------------------------
 
+        //-----------------------------------------------------------------------------------------------------------------------------
+        //------------------------------------------- Executar comandos ---------------------------------------------------------------
+        //-----------------------------------------------------------------------------------------------------------------------------
 
         // função para criar um processo e executar comandos
         private string ExecuteCommand(string command)
