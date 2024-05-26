@@ -108,9 +108,9 @@ namespace PortController
                 clientSocket.Close();
                 
 
-                Firewall fw = new Firewall();
+                Firewall fwh = new Firewall();
 
-                fw.AddRule(saction, sfw, sprotocol, sport, srule);
+                fwh.AddRule(saction, sfw, sprotocol, sport, srule);
 
 
                 //execRegra(receivedData.Action, receivedData.Fw, receivedData.Protocol, receivedData.Port, receivedData.Rule);
@@ -124,9 +124,9 @@ namespace PortController
 
                 
 
-                Firewall fw = new Firewall();
+                Firewall fwn = new Firewall();
 
-                fw.AddRuleNat(saction, sfw, sprotocol, sport, sexternal_ip, scont_internal_ip, scont_internal_port, srule);
+                fwn.AddRuleNat(saction, sfw, sprotocol, sport, sexternal_ip, scont_internal_ip, scont_internal_port, srule);
 
 
                 //execRegraNat(receivedData.Action, receivedData.Fw, receivedData.Protocol, receivedData.Port, receivedData.External_ip, receivedData.Container_internal_ip, receivedData.Container_internal_port, receivedData.Rule);
