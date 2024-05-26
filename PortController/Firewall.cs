@@ -137,7 +137,7 @@ namespace PortController
 
         public void criar_ligação(string porta_exterior, string external_ip, string porta_container, string ip_container, string protocol) 
         {
-            ExecuteCommand($"iptables -t nat -I PREROUTING -p {protocol} --dport {porta_exterior} -d {external_ip} -j DNAT --to-destination {ip_container}:{porta_container} && doas /sbin/iptables-save");
+            ExecuteCommand($"iptables -t nat -I PREROUTING -p {protocol} --dport {porta_exterior} -d {external_ip} -j DNAT --to-destination {ip_container}:{porta_container} && /sbin/iptables-save");
 
         }
 

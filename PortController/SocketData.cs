@@ -18,7 +18,7 @@ namespace PortController
     internal class SocketData
     {
 
-
+        
         private string cont_name;
         private string cont_type;
         private string cont_action;
@@ -30,23 +30,23 @@ namespace PortController
         public string Action { get { return cont_action; } /*private*/ set { cont_action = Action; } }
         public string Fwtype { get { return cont_fw; } /*private*/ set { cont_fw = Fwtype; } }
         public string Port { get { return cont_port; } /*private*/ set { cont_port = Port; } }
-
+        
 
         public SocketData()
-        { 
-        
+        {
+
         }
 
-        
 
-        
+
+
         public void ReceberJson(Socket clientSocket)
         {
             //Console.WriteLine("teste func receber json");
 
             // Ler os dados recebidos do cliente
 
-            
+
             byte[] buffer = new byte[1024];
             int bytesRead = clientSocket.Receive(buffer);
             string jsonData = Encoding.UTF8.GetString(buffer, 0, bytesRead);
@@ -65,18 +65,11 @@ namespace PortController
             Console.WriteLine($"Container_internal_port: {receivedData.Container_internal_port}");
             Console.WriteLine($"Rule: {receivedData.Rule}");
 
-            string scontainer_name = receivedData.Container;
-            string stype = receivedData.Type;
-            string saction = receivedData.Action;
-            string sfw = receivedData.Fw;
-            string sprotocol = receivedData.Protocol;
-            string sport = receivedData.Port;
-            string sexternal_ip = receivedData.External_ip;
-            string scont_internal_ip = receivedData.Container_internal_ip;
-            string scont_internal_port = receivedData.Container_internal_port;
-            string srule = receivedData.Rule;
 
-            if (saction == "GetInfo")
+
+
+
+            if (receivedData.Action == "GetInfo")
             {
                 /*
                 Console.WriteLine("receber json - getinfo");
@@ -99,53 +92,25 @@ namespace PortController
                 clientSocket.Send(responseBytes);
                 */
             }
-            if (stype == "host" && saction == "Closeport" || stype == "host" && saction == "OpenPortport")
+            if (receivedData.Type == "host" && receivedData.Action == "Closeport" || receivedData.Type == "host" && receivedData.Action == "OpenPortport")
             {
 
                 //clientSocket.Shutdown(SocketShutdown.Both);
                 clientSocket.Close();
 
-                /*
-                string saction = receivedData.Action;
-                string sfw = receivedData.Fw;
-                string sprotocol = receivedData.Protocol;
-                string sport = receivedData.Port;
-                string srule = receivedData.Rule;
-                */
-
-                Firewall fw = new Firewall();
-
-                fw.AddRule(saction, sfw, sprotocol, sport, srule);
-
-                //execRegra(receivedData.Action, receivedData.Fw, receivedData.Protocol, receivedData.Port, receivedData.Rule);
-
-            } 
-            if (stype == "host" && saction == "AddNat" || stype == "host" && saction == "RemoveNat" || stype == "host" && saction == "ResetNat")
-            {
-
-                //clientSocket.Shutdown(SocketShutdown.Both);
-                clientSocket.Close();
-
-                /*
-                string saction = receivedData.Action;
-                string sfw = receivedData.Fw;
-                string sprotocol = receivedData.Protocol;
-                string sport = receivedData.Port;
-                string sexternal_ip = receivedData.External_ip;
-                string scont_internal_ip = receivedData.Container_internal_ip;
-                string scont_internal_port = receivedData.Container_internal_port;
-                string srule = receivedData.Rule;
-                */
-
-                Firewall fw = new Firewall();
-
-                fw.AddRuleNat(saction, sfw, sprotocol, sport, sexternal_ip, scont_internal_ip, scont_internal_port, srule);
-
-
-                //execRegraNat(receivedData.Action, receivedData.Fw, receivedData.Protocol, receivedData.Port, receivedData.External_ip, receivedData.Container_internal_ip, receivedData.Container_internal_port, receivedData.Rule);
+                execRegra(receivedData.Action, receivedData.Fw, receivedData.Protocol, receivedData.Port, receivedData.Rule);
 
             }
-            if (stype == "lxc" || stype == "incus")
+            if (receivedData.Type == "host" && receivedData.Action == "AddNat" || receivedData.Type == "host" && receivedData.Action == "RemoveNat" || receivedData.Type == "host" && receivedData.Action == "ResetNat")
+            {
+
+                //clientSocket.Shutdown(SocketShutdown.Both);
+                clientSocket.Close();
+
+                execRegraNat(receivedData.Action, receivedData.Fw, receivedData.Protocol, receivedData.Port, receivedData.External_ip, receivedData.Container_internal_ip, receivedData.Container_internal_port, receivedData.Rule);
+
+            }
+            if (receivedData.Type == "lxc" || receivedData.Type == "incus")
             {
                 //clientSocket.Shutdown(SocketShutdown.Both);
                 clientSocket.Close();
@@ -160,12 +125,12 @@ namespace PortController
         // -------------------------------------------------------- host --------------------------------------------------------
         // ########################################################################################################################
 
-        /*
+
         private static void execRegra(dynamic action, dynamic firewall, dynamic protocol, dynamic port, dynamic rule)
         {
             string saction = action;
             string sfw = firewall;
-            string sprotocol = protocol;      
+            string sprotocol = protocol;
             string sport = port;
             string srule = rule;
 
@@ -195,7 +160,7 @@ namespace PortController
             fw.AddRuleNat(saction, sfw, sprotocol, sport, sexternal_ip, scont_internal_ip, scont_internal_port, srule);
 
         }
-        */
+
 
         // ###################################################################################################################################################
         // ------------------------------------------------------      Containers    -------------------------------------------------------------------------
@@ -231,7 +196,7 @@ namespace PortController
                     }
                     */
 
-                    lxc.AddRule(sname, action, sfw, sprotocol, sport, srule);
+                    lxc.AddRule(sname, saction, sfw, sprotocol, sport, srule);
 
 
                     /*
@@ -243,7 +208,7 @@ namespace PortController
                     break;
                 case "incus":
                     Console.WriteLine("Opção 2 selecionada.");
-                    break;              
+                    break;
                 default:
                     Console.WriteLine("Opção inválida. (execRegraContainer)");
                     break;
@@ -251,6 +216,7 @@ namespace PortController
 
 
         }
+
         /*
         private static string GetStateCont(dynamic name, dynamic type)
         {
@@ -261,7 +227,7 @@ namespace PortController
             {
                 case "lxc":
                     Console.WriteLine("Opção 3 selecionada.");
-                       
+
                     Lxc lxc = new Lxc();
 
                     bool state = lxc.GetState(sname);
@@ -288,9 +254,7 @@ namespace PortController
 
 
 
-        }
-        */
-
+        }*/
         
         //private static string[] GetInfoPortsContainer(dynamic name, dynamic type)
         //{
@@ -310,9 +274,9 @@ namespace PortController
         //            */
 
         //            Lxc lxc = new Lxc { Nome = name, Tipo = type };
-                    
 
-                   
+
+
 
         //            //Console.WriteLine(lxc.GetInfo(name));
 
@@ -342,7 +306,6 @@ namespace PortController
 
 
         //}
-
-        
+            
     }
 }
