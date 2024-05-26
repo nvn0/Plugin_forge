@@ -65,7 +65,16 @@ namespace PortController
             Console.WriteLine($"Container_internal_port: {receivedData.Container_internal_port}");
             Console.WriteLine($"Rule: {receivedData.Rule}");
 
-
+            //string scont_name = receivedData.Container;
+            //string stype = receivedData.Type;
+            string saction = receivedData.Action;
+            string sfw = receivedData.Fw;
+            string sprotocol = receivedData.Protocol;
+            string sport = receivedData.Port;
+            string sexternal_ip = receivedData.External_ip;
+            string scont_internal_ip = receivedData.Cont_internal_ip;
+            string scont_internal_port = receivedData.Container_internal_port;
+            string srule = receivedData.Rule;
 
 
 
@@ -97,17 +106,30 @@ namespace PortController
 
                 //clientSocket.Shutdown(SocketShutdown.Both);
                 clientSocket.Close();
+                
 
-                execRegra(receivedData.Action, receivedData.Fw, receivedData.Protocol, receivedData.Port, receivedData.Rule);
+                Firewall fw = new Firewall();
+
+                fw.AddRule(saction, sfw, sprotocol, sport, srule);
+
+
+                //execRegra(receivedData.Action, receivedData.Fw, receivedData.Protocol, receivedData.Port, receivedData.Rule);
 
             }
             if (receivedData.Type == "host" && receivedData.Action == "AddNat" || receivedData.Type == "host" && receivedData.Action == "RemoveNat" || receivedData.Type == "host" && receivedData.Action == "ResetNat")
             {
-
+                
                 //clientSocket.Shutdown(SocketShutdown.Both);
                 clientSocket.Close();
 
-                execRegraNat(receivedData.Action, receivedData.Fw, receivedData.Protocol, receivedData.Port, receivedData.External_ip, receivedData.Container_internal_ip, receivedData.Container_internal_port, receivedData.Rule);
+                
+
+                Firewall fw = new Firewall();
+
+                fw.AddRuleNat(saction, sfw, sprotocol, sport, sexternal_ip, scont_internal_ip, scont_internal_port, srule);
+
+
+                //execRegraNat(receivedData.Action, receivedData.Fw, receivedData.Protocol, receivedData.Port, receivedData.External_ip, receivedData.Container_internal_ip, receivedData.Container_internal_port, receivedData.Rule);
 
             }
             if (receivedData.Type == "lxc" || receivedData.Type == "incus")
@@ -125,7 +147,7 @@ namespace PortController
         // -------------------------------------------------------- host --------------------------------------------------------
         // ########################################################################################################################
 
-
+        /*
         private static void execRegra(dynamic action, dynamic firewall, dynamic protocol, dynamic port, dynamic rule)
         {
             string saction = action;
@@ -140,9 +162,9 @@ namespace PortController
             fw.AddRule(saction, sfw, sprotocol, sport, srule);
 
         }
+        */
 
-
-
+        /*
         private static void execRegraNat(dynamic action, dynamic firewall, dynamic protocol, dynamic port, dynamic external_ip, dynamic cont_internal_ip, dynamic container_internal_port, dynamic rule)
         {
             string saction = action;
@@ -160,7 +182,7 @@ namespace PortController
             fw.AddRuleNat(saction, sfw, sprotocol, sport, sexternal_ip, scont_internal_ip, scont_internal_port, srule);
 
         }
-
+        */
 
         // ###################################################################################################################################################
         // ------------------------------------------------------      Containers    -------------------------------------------------------------------------

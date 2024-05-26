@@ -32,7 +32,6 @@ namespace PortController
         private void iptCustomRule(string rule)
         {
             ExecuteCommand($"iptables -I {rule} && /sbin/iptables-save"); // -A para adicionar no fundo da lista ou -I para adicionar ao topo da lista
-			//ExecuteCommand($"/sbin/iptables-save");
         }
         
 
@@ -581,7 +580,7 @@ namespace PortController
         //-----------------------------------------------------------------------------------------------------------------------------
 
 
-
+       
         public void AddRule(string action, string firewall, string protocol, string port, string rule = "")
         {
 
@@ -607,7 +606,6 @@ namespace PortController
             else if (firewall == "ipt" && action == "ExecCmd" && rule != "")
             {
                 iptCustomRule(rule);
-                
             }
             else if (firewall == "nft" && action == "ExecCmd" && rule != "")
             {
@@ -615,6 +613,7 @@ namespace PortController
             }
 
         }
+
 
         public void AddRuleNat(string action, string firewall, string protocol, string port, string external_ip, string cont_internal_ip, string cont_internal_port, string rule = "")
         {
