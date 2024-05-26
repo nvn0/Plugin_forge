@@ -23,6 +23,10 @@ namespace PortController
 
 
 
+        //---------------------------------------------------------------------------------------------------------
+        //                                                      IPTABLES
+        //---------------------------------------------------------------------------------------------------------
+
 
         // função para de defenir uma regra personalizada 
         private void iptCustomRule(string rule)
@@ -615,7 +619,7 @@ namespace PortController
         public void AddRuleNat(string action, string firewall, string protocol, string port, string external_ip, string cont_internal_ip, string cont_internal_port, string rule = "")
         {
 
-            string shost_ip = host_ip;
+            //string shost_ip = host_ip;
             string sbridge_interface = bridge_interface;
 
             if (firewall == "ipt" && action == "AddNat")
