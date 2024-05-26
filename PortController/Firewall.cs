@@ -27,7 +27,7 @@ namespace PortController
         // função para de defenir uma regra personalizada 
         public void iptCustomRule(string rule)
         {
-            ExecuteCommand($"iptables -A {rule} && /sbin/iptables-save"); // -A para adicionar no fundo da lista ou -I para adicionar ao topo da lista
+            ExecuteCommand($"iptables -I {rule} && /sbin/iptables-save"); // -A para adicionar no fundo da lista ou -I para adicionar ao topo da lista
 			//ExecuteCommand($"/sbin/iptables-save");
         }
         

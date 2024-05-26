@@ -8,6 +8,8 @@ using System.Xml.Linq;
 using System.Runtime.InteropServices.JavaScript;
 using System.Net.Sockets;
 using System.ComponentModel.Design;
+using static System.Collections.Specialized.BitVector32;
+using System.Data;
 
 
 namespace PortController
@@ -54,21 +56,29 @@ namespace PortController
             Console.WriteLine("Dados recebidos do client:");
             Console.WriteLine($"Nome: {receivedData.Container}");
             Console.WriteLine($"Type: {receivedData.Type}");
+            Console.WriteLine($"Action: {receivedData.Action}");
             Console.WriteLine($"Firewall: {receivedData.Fw}");
-            Console.WriteLine($"Ação: {receivedData.Action}");
             Console.WriteLine($"Protocol: {receivedData.Protocol}");
-            Console.WriteLine($"Porta: {receivedData.Port}");
+            Console.WriteLine($"Port: {receivedData.Port}");
             Console.WriteLine($"external_ip: {receivedData.External_ip}");
             Console.WriteLine($"Container_internal_ip: {receivedData.Container_internal_ip}");
             Console.WriteLine($"Container_internal_port: {receivedData.Container_internal_port}");
             Console.WriteLine($"Rule: {receivedData.Rule}");
 
-           
+            string scontainer_name = receivedData.Container;
+            string stype = receivedData.Type;
+            string saction = receivedData.Action;
+            string sfw = receivedData.Fw;
+            string sprotocol = receivedData.Protocol;
+            string sport = receivedData.Port;
+            string sexternal_ip = receivedData.External_ip;
+            string scont_internal_ip = receivedData.Container_internal_ip;
+            string scont_internal_port = receivedData.Container_internal_port;
+            string srule = receivedData.Rule;
 
-
-
-            if (receivedData.Action == "GetInfo")
+            if (saction == "GetInfo")
             {
+                /*
                 Console.WriteLine("receber json - getinfo");
 
                 string[] ports;
@@ -87,26 +97,55 @@ namespace PortController
                 string responseJson = JsonConvert.SerializeObject(responseData);
                 byte[] responseBytes = Encoding.UTF8.GetBytes(responseJson);
                 clientSocket.Send(responseBytes);
+                */
             }
-            if (receivedData.Type == "host" && receivedData.Action == "Closeport" || receivedData.Type == "host" && receivedData.Action == "OpenPortport")
+            if (stype == "host" && saction == "Closeport" || stype == "host" && saction == "OpenPortport")
             {
 
                 //clientSocket.Shutdown(SocketShutdown.Both);
                 clientSocket.Close();
 
-                execRegra(receivedData.Action, receivedData.Fw, receivedData.Protocol, receivedData.Port, receivedData.Rule);
+                /*
+                string saction = receivedData.Action;
+                string sfw = receivedData.Fw;
+                string sprotocol = receivedData.Protocol;
+                string sport = receivedData.Port;
+                string srule = receivedData.Rule;
+                */
+
+                Firewall fw = new Firewall();
+
+                fw.AddRule(saction, sfw, sprotocol, sport, srule);
+
+                //execRegra(receivedData.Action, receivedData.Fw, receivedData.Protocol, receivedData.Port, receivedData.Rule);
 
             } 
-            if (receivedData.Type == "host" && receivedData.Action == "AddNat" || receivedData.Type == "host" && receivedData.Action == "RemoveNat" || receivedData.Type == "host" && receivedData.Action == "ResetNat")
+            if (stype == "host" && saction == "AddNat" || stype == "host" && saction == "RemoveNat" || stype == "host" && saction == "ResetNat")
             {
 
                 //clientSocket.Shutdown(SocketShutdown.Both);
                 clientSocket.Close();
 
-                execRegraNat(receivedData.Action, receivedData.Fw, receivedData.Protocol, receivedData.Port, receivedData.External_ip, receivedData.Container_internal_ip, receivedData.Container_internal_port, receivedData.Rule);
+                /*
+                string saction = receivedData.Action;
+                string sfw = receivedData.Fw;
+                string sprotocol = receivedData.Protocol;
+                string sport = receivedData.Port;
+                string sexternal_ip = receivedData.External_ip;
+                string scont_internal_ip = receivedData.Container_internal_ip;
+                string scont_internal_port = receivedData.Container_internal_port;
+                string srule = receivedData.Rule;
+                */
+
+                Firewall fw = new Firewall();
+
+                fw.AddRuleNat(saction, sfw, sprotocol, sport, sexternal_ip, scont_internal_ip, scont_internal_port, srule);
+
+
+                //execRegraNat(receivedData.Action, receivedData.Fw, receivedData.Protocol, receivedData.Port, receivedData.External_ip, receivedData.Container_internal_ip, receivedData.Container_internal_port, receivedData.Rule);
 
             }
-            if (receivedData.Type == "lxc" || receivedData.Type == "incus")
+            if (stype == "lxc" || stype == "incus")
             {
                 //clientSocket.Shutdown(SocketShutdown.Both);
                 clientSocket.Close();
@@ -121,7 +160,7 @@ namespace PortController
         // -------------------------------------------------------- host --------------------------------------------------------
         // ########################################################################################################################
 
-
+        /*
         private static void execRegra(dynamic action, dynamic firewall, dynamic protocol, dynamic port, dynamic rule)
         {
             string saction = action;
@@ -156,7 +195,7 @@ namespace PortController
             fw.AddRuleNat(saction, sfw, sprotocol, sport, sexternal_ip, scont_internal_ip, scont_internal_port, srule);
 
         }
-
+        */
 
         // ###################################################################################################################################################
         // ------------------------------------------------------      Containers    -------------------------------------------------------------------------
@@ -212,7 +251,7 @@ namespace PortController
 
 
         }
-
+        /*
         private static string GetStateCont(dynamic name, dynamic type)
         {
             string sname = name;
@@ -250,57 +289,60 @@ namespace PortController
 
 
         }
+        */
 
-        private static string[] GetInfoPortsContainer(dynamic name, dynamic type)
-        {
+        
+        //private static string[] GetInfoPortsContainer(dynamic name, dynamic type)
+        //{
 
-            string opcao = type;
+        //    string opcao = type;
 
-            switch (opcao)
-            {
-                case "lxc":
-                    Console.WriteLine("Opção 1 selecionada. (getInfo)");
+        //    switch (opcao)
+        //    {
+        //        case "lxc":
+        //            Console.WriteLine("Opção 1 selecionada. (getInfo)");
 
-                    /*
-                    string nomec = name;
-                    string typec = type;
+        //            /*
+        //            string nomec = name;
+        //            string typec = type;
 
-                    Lxc lxc = new Lxc(nomec, typec);
-                    */
+        //            Lxc lxc = new Lxc(nomec, typec);
+        //            */
 
-                    Lxc lxc = new Lxc { Nome = name, Tipo = type };
+        //            Lxc lxc = new Lxc { Nome = name, Tipo = type };
                     
 
                    
 
-                    //Console.WriteLine(lxc.GetInfo(name));
+        //            //Console.WriteLine(lxc.GetInfo(name));
 
-                    //Console.WriteLine(lxc.GetPorts());
-                    Console.WriteLine(lxc.GetPorts2());
-                    string[] array = lxc.GetPorts2().ToArray();
+        //            //Console.WriteLine(lxc.GetPorts());
+        //            Console.WriteLine(lxc.GetPorts2());
+        //            string[] array = lxc.GetPorts2().ToArray();
 
-                    return array;
-
-
-
-                    break;
-
-                case "incus":
-                    Console.WriteLine("Opção 2 selecionada.");
-                    string[] array2 = { "1" };
-                    return array2;
-
-                    break;
-                default:
-                    Console.WriteLine("Opção inválida. (GetInfoPortsContainer)");
-                    string[] array4 = { "1" };
-                    return array4;
-                    break;
-
-            }
+        //            return array;
 
 
-        }
 
+        //            break;
+
+        //        case "incus":
+        //            Console.WriteLine("Opção 2 selecionada.");
+        //            string[] array2 = { "1" };
+        //            return array2;
+
+        //            break;
+        //        default:
+        //            Console.WriteLine("Opção inválida. (GetInfoPortsContainer)");
+        //            string[] array4 = { "1" };
+        //            return array4;
+        //            break;
+
+        //    }
+
+
+        //}
+
+        
     }
 }
