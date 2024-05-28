@@ -106,7 +106,7 @@ namespace PortController
 
         public void Lxc_forward(string bridge_interface, string porta_exterior, string external_ip, string porta_container, string ip_container, string protocol)
         {
-            //ExecuteCommand($"doas lxc network forward create {bridge_interface} {host_ip}"); // -> executar apena uma vez
+            //ExecuteCommand($"doas lxc network forward create {bridge_interface} {host_ip}"); // -> executar apena uma vez pra registar/adicionar o ip ao lxd forward
             ExecuteCommand($"lxc network forward port add {bridge_interface} {external_ip} {protocol} {porta_exterior} {ip_container} {porta_container}");
 
         }
