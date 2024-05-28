@@ -94,7 +94,7 @@ namespace PortController
 
 
         //---------------------------------------------------------------------------------------------------------
-        //                                                      FireWall 1 command
+        //                                                      Decide o q executar
         //---------------------------------------------------------------------------------------------------------
 
 
@@ -103,8 +103,6 @@ namespace PortController
 
         public void AddRule(string container_name, string action, string firewall, string protocol, string port, string rule = "")
         {
-
-
 
 
             if (firewall == "ipt" && action == "OpenPort")

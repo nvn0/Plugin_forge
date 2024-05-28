@@ -149,6 +149,11 @@ namespace PortController
                         break;
                     case "incus":
                         Console.WriteLine("Opcao 2 selecionada.");
+
+                        Incus incus = new Incus();
+
+                        incus.AddRule(scont_name, saction, sfw, sprotocol, sport, srule);
+
                         break;
                     default:
                         Console.WriteLine("Opcao invalida. (execRegraContainer)");
