@@ -10,6 +10,7 @@ using System.Net.Sockets;
 using System.ComponentModel.Design;
 using static System.Collections.Specialized.BitVector32;
 using System.Data;
+using static System.Formats.Asn1.AsnWriter;
 
 
 namespace PortController
@@ -42,11 +43,9 @@ namespace PortController
 
         public void ReceberJson(Socket clientSocket)
         {
-            //Console.WriteLine("teste func receber json");
+            
 
-            // Ler os dados recebidos do cliente
-
-
+            // Ler os dados recebidos do cliente(socket)
             byte[] buffer = new byte[1024];
             int bytesRead = clientSocket.Receive(buffer);
             string jsonData = Encoding.UTF8.GetString(buffer, 0, bytesRead);
@@ -65,8 +64,9 @@ namespace PortController
             Console.WriteLine($"Container_internal_port: {receivedData.Container_internal_port}");
             Console.WriteLine($"Rule: {receivedData.Rule}");
 
-            //string scont_name = receivedData.Container;
-            //string stype = receivedData.Type;
+            // conversao das variaveis para string
+            string scont_name = receivedData.Container;
+            string stype = receivedData.Type;
             string saction = receivedData.Action;
             string sfw = receivedData.Fw;
             string sprotocol = receivedData.Protocol;
@@ -132,12 +132,30 @@ namespace PortController
                 //execRegraNat(receivedData.Action, receivedData.Fw, receivedData.Protocol, receivedData.Port, receivedData.External_ip, receivedData.Container_internal_ip, receivedData.Container_internal_port, receivedData.Rule);
 
             }
-            if (receivedData.Type == "lxc" || receivedData.Type == "incus")
+            if (receivedData.Type == "lxc" || receivedData.Type == "incus") // executar regras dentro dos containers
             {
                 //clientSocket.Shutdown(SocketShutdown.Both);
                 clientSocket.Close();
 
-                execRegraContainer(receivedData.Container, receivedData.Type, receivedData.Action, receivedData.Fw, receivedData.Protocol, receivedData.Port, receivedData.Rule);
+                switch (stype)
+                {
+                    case "lxc":
+                        Console.WriteLine("Opcao 1 selecionada.");
+
+                        Lxc lxc = new Lxc();
+
+                        lxc.AddRule(scont_name, saction, sfw, sprotocol, sport, srule);
+
+                        break;
+                    case "incus":
+                        Console.WriteLine("Opcao 2 selecionada.");
+                        break;
+                    default:
+                        Console.WriteLine("Opcao invalida. (execRegraContainer)");
+                        break;
+                }
+
+                //execRegraContainer(receivedData.Container, receivedData.Type, receivedData.Action, receivedData.Fw, receivedData.Protocol, receivedData.Port, receivedData.Rule);
             }
 
             clientSocket.Close();
@@ -189,55 +207,56 @@ namespace PortController
         // ###################################################################################################################################################
 
 
+        
+        //private static void execRegraContainer(dynamic name, dynamic type, dynamic action, dynamic firewall, dynamic protocol, dynamic port, dynamic rule)
+        //{
+        //    string sname = name;
+        //    string stype = type;
+        //    string saction = action;
+        //    string sfw = firewall;
+        //    string sprotocol = protocol;
+        //    string sport = port;
+        //    string srule = rule;
 
-        private static void execRegraContainer(dynamic name, dynamic type, dynamic action, dynamic firewall, dynamic protocol, dynamic port, dynamic rule)
-        {
-            string sname = name;
-            string stype = type;
-            string saction = action;
-            string sfw = firewall;
-            string sprotocol = protocol;
-            string sport = port;
-            string srule = rule;
+        //    switch (stype)
+        //    {
+        //        case "lxc":
+        //            Console.WriteLine("Opção 1 selecionada.");
 
-            switch (stype)
-            {
-                case "lxc":
-                    Console.WriteLine("Opção 1 selecionada.");
+        //            Lxc lxc = new Lxc();
 
-                    Lxc lxc = new Lxc();
+        //            /*
+        //            if (fwt == "ipt" && action)
+        //            {
+        //                lxc.OpenPort(name, port);
+        //            }   
+        //            else if (fwt == "nft")
+        //            {
+        //                lxc.NFOpenPort(name, port);
+        //            }
+        //            */
 
-                    /*
-                    if (fwt == "ipt" && action)
-                    {
-                        lxc.OpenPort(name, port);
-                    }   
-                    else if (fwt == "nft")
-                    {
-                        lxc.NFOpenPort(name, port);
-                    }
-                    */
-
-                    lxc.AddRule(sname, saction, sfw, sprotocol, sport, srule);
-
-
-                    /*
-                    string nomec = name;
-                    Console.WriteLine(nomec);
-                    lxc.ApiCommand(nomec);
-                    */
-
-                    break;
-                case "incus":
-                    Console.WriteLine("Opção 2 selecionada.");
-                    break;
-                default:
-                    Console.WriteLine("Opção inválida. (execRegraContainer)");
-                    break;
-            }
+        //            lxc.AddRule(sname, saction, sfw, sprotocol, sport, srule);
 
 
-        }
+        //            /*
+        //            string nomec = name;
+        //            Console.WriteLine(nomec);
+        //            lxc.ApiCommand(nomec);
+        //            */
+
+        //            break;
+        //        case "incus":
+        //            Console.WriteLine("Opção 2 selecionada.");
+        //            break;
+        //        default:
+        //            Console.WriteLine("Opção inválida. (execRegraContainer)");
+        //            break;
+        //    }
+
+
+        //}
+        
 
         /*
         private static string GetStateCont(dynamic name, dynamic type)
