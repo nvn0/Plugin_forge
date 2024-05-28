@@ -626,7 +626,7 @@ namespace PortController
                 Console.WriteLine("opc 1");
                 criar_ligacao(port, external_ip, cont_internal_port, cont_internal_ip, protocol);
             }
-            else if (firewall == "lxdforward" && action == "AddNat")
+            else if (firewall == "lxcforward" && action == "AddNat")
             {
                 Console.WriteLine("opc 2");
                 Lxc_forward(sbridge_interface, port, external_ip, cont_internal_port, cont_internal_ip, protocol);
