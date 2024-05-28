@@ -138,7 +138,7 @@ namespace PortController
         }
         */
 
-        public void criar_ligação(string porta_exterior, string external_ip, string porta_container, string ip_container, string protocol) 
+        public void criar_ligacao(string porta_exterior, string external_ip, string porta_container, string ip_container, string protocol) 
         {
             ExecuteCommand($"iptables -t nat -I PREROUTING -p {protocol} --dport {porta_exterior} -d {external_ip} -j DNAT --to-destination {ip_container}:{porta_container} && /sbin/iptables-save");
 
@@ -624,7 +624,7 @@ namespace PortController
             if (firewall == "ipt" && action == "AddNat")
             {
                 Console.WriteLine("opc 1");
-                criar_ligação(port, external_ip, cont_internal_port, cont_internal_ip, protocol);
+                criar_ligacao(port, external_ip, cont_internal_port, cont_internal_ip, protocol);
             }
             else if (firewall == "lxdforward" && action == "AddNat")
             {
