@@ -560,7 +560,7 @@ namespace PortController
             // Criar um objeto UnixDomainSocketEndPoint
             var endPoint = new UnixDomainSocketEndPoint(socketPath);
 
-            // Conectar ao Unix socket
+            // Conectar a Unix socket
             socket.Connect(endPoint);
         }
 
