@@ -184,11 +184,11 @@ namespace PortController
                     // Conectar ao socket
                     ConnectToUnixSocket(socket, socketPath);
 
-                    // Enviar uma solicitação HTTP GET
+                    // Enviar uma solicitacao HTTP GET
                     string requestPath1 = $"/1.0/networks/{bridge_interface}/forwards/{external_ip}";
                     string request1 = $"GET {requestPath1} HTTP/1.1\r\nHost: dummy\r\n\r\n";
 
-                    // Enviar a solicitação
+                    // Enviar a solicitacao
                     byte[] requestBytes1 = Encoding.UTF8.GetBytes(request1);
                     socket.Send(requestBytes1);
 
@@ -198,12 +198,12 @@ namespace PortController
                     string responseData = Encoding.UTF8.GetString(receiveBuffer, 0, receivedBytes);
                     Console.WriteLine("Response from server: " + responseData);
 
-                    //------ Edição do JSON ------------------------
+                    //------ Edicao do JSON ------------------------
 
-                    // Encontra o índice do final dos cabeçalhos na resposta
+                    // Encontra o indice do final dos cabecalhos na resposta
                     int headersEndIndex = responseData.IndexOf("\r\n\r\n");
 
-                    // Extrai a parte do corpo da resposta (após o final dos cabeçalhos)
+                    // Extrai a parte do corpo da resposta (apos o final dos cabecalhos)
                     string responseBody = responseData.Substring(headersEndIndex + 4);
 
                     // Analisa o JSON do corpo da resposta
@@ -216,18 +216,18 @@ namespace PortController
 
                     
 
-                    // Verifica se o objeto contém a propriedade "metadata"
+                    // Verifica se o objeto contem a propriedade "metadata"
                     if (jsonResponseObject is not null && jsonResponseObject.TryGetProperty("metadata", out metadataElement))
                     {
-                        // Obtém o objeto "metadata"
+                        // Obtem o objeto "metadata"
                         dynamic metadataObject = metadataElement;
 
-                        // Verifica se "metadata" contém a propriedade "ports"
+                        // Verifica se "metadata" contem a propriedade "ports"
                         if (metadataObject.TryGetProperty("ports", out JsonElement portsElement))
                         {
                            
 
-                            // Verifica se "ports" é de fato um array
+                            // Verifica se "ports" é de um array
                             if (portsElement.ValueKind == JsonValueKind.Array)
                             {
                                 // Converte o elemento "ports" para uma lista de portas
@@ -236,7 +236,7 @@ namespace PortController
                                     portsList.Add(portas);
                                 }
 
-                                // Cria um novo objeto para adicionar à lista de portas
+                                // Cria um novo objeto para adicionar a lista de portas
                                 dynamic newPort = new
                                 {
                                     description = "",
@@ -246,7 +246,7 @@ namespace PortController
                                     target_port = cont_internal_port
                                 };
 
-                                // Adiciona o novo objeto à lista de portas
+                                // Adiciona o novo objeto a lista de portas
                                 portsList.Add(newPort);
                                 portsJson = JsonSerializer.Serialize(portsList);
 
@@ -258,17 +258,17 @@ namespace PortController
                             }
                             else
                             {
-                                Console.WriteLine("A propriedade 'ports' em 'metadata' não é um array.");
+                                Console.WriteLine("A propriedade 'ports' em 'metadata' nao é um array.");
                             }
                         }
                         else
                         {
-                            Console.WriteLine("O objeto 'metadata' não possui a propriedade 'ports'.");
+                            Console.WriteLine("O objeto 'metadata' nao possui a propriedade 'ports'.");
                         }
                     }
                     else
                     {
-                        Console.WriteLine("O objeto JSON não possui a propriedade 'metadata' ou é nulo/vazio.");
+                        Console.WriteLine("O objeto JSON nao possui a propriedade 'metadata' ou e nulo.");
                     }
                 
 
@@ -286,11 +286,11 @@ namespace PortController
                         ports = portsList
                     };
 
-                    // Converte o objeto dinâmico para uma string JSON
+                    // Converte o objeto dinamico para uma string JSON
                     string requestBody = JsonSerializer.Serialize(requestBodyObject);
                     Console.WriteLine("enviar: " + requestBody);
 
-                    // Construir a solicitação PUT
+                    // Construir a solicitacao PUT
                     string requestPath2 = $"/1.0/networks/lxdbr0/forwards/{external_ip}";
                     string request2 = $"PUT {requestPath2} HTTP/1.1\r\nHost: dummy\r\nContent-Length: {Encoding.UTF8.GetBytes(requestBody).Length}\r\n\r\n{requestBody}";
 
@@ -318,7 +318,7 @@ namespace PortController
         
 
 
-        private void Lxd_api_forward_remove(string bridge_interface, string protocol, string port, string external_ip, string cont_internal_ip, string cont_internal_port) //criar comandos de forward
+        private void Lxd_api_forward_remove(string bridge_interface, string protocol, string port, string external_ip, string cont_internal_ip, string cont_internal_port)
         {
 
             // GET /1.0/networks/{networkName}/forwards
@@ -357,10 +357,10 @@ namespace PortController
 
                     //------ Edição do JSON ------------------------
 
-                    // Encontra o índice do final dos cabeçalhos na resposta
+                    // Encontra o índice do final dos cabeçcalhos na resposta
                     int headersEndIndex = responseData.IndexOf("\r\n\r\n");
 
-                    // Extrai a parte do corpo da resposta (após o final dos cabeçalhos)
+                    // Extrai a parte do corpo da resposta (apos o final dos cabecalhos)
                     string responseBody = responseData.Substring(headersEndIndex + 4);
 
                     // Analisa o JSON do corpo da resposta
@@ -369,13 +369,13 @@ namespace PortController
 
                    
 
-                    // Inicializa metadataElement com um valor padrão
+                    // Inicializa metadataElement com um valor padrao
                     JsonElement metadataElement = default;
 
-                    // Verifica se o objeto contém a propriedade "metadata"
+                    // Verifica se o objeto contem a propriedade "metadata"
                     if (jsonResponseObject is not null && jsonResponseObject.TryGetProperty("metadata", out metadataElement))
                     {
-                        // Verifica se "metadata" contém a propriedade "ports"
+                        // Verifica se "metadata" contem a propriedade "ports"
                         if (metadataElement.TryGetProperty("ports", out JsonElement portsElement))
                         {
 
@@ -392,44 +392,42 @@ namespace PortController
                                 // Converte o elemento "ports" para uma lista de portas
                                 foreach (JsonElement portas in portsElement.EnumerateArray())
                                 {
-                                    // Verifica se o objeto contém ambas as propriedades "target_address" e "target_port"
+                                    // Verifica se o objeto contem as propriedades "target_address" e "target_port" e "listen_port"
                                     if (portas.TryGetProperty("target_address", out JsonElement targetAddressElement) &&
                                         portas.TryGetProperty("target_port", out JsonElement targetPortElement) &&
                                         portas.TryGetProperty("listen_port", out JsonElement listenPortElement))
                                     {
-                                        // Verifica se o "target_address" e o "target_port" correspondem aos especificados
+                                        // Verifica se o "target_address", o "target_port" e o "listen_port" correspondem aos especificados
                                         if (targetAddressElement.GetString() == targetAddressToRemove && targetPortElement.GetString() == targetPortToRemove && listenPortElement.GetString() == listenPortToRemove)
                                         {
-                                            // Se corresponderem, não adicionamos esse objeto à lista de portas
+                                            // Se corresponderem, o obj nao é adicionado lista de portas
                                             continue;
                                         }
                                     }
 
-                                    // Adiciona o objeto à lista de portas
+                                    // Adiciona o objeto a lista de portas
                                     portsList.Add(portas);
                                 }
 
 
-                                // Verifica se algum objeto foi adicionado à lista de portas
+                                // Verifica se algum objeto foi adicionado a lista de portas
                                 if (portsList.Count > 0)
                                 {
                                     // Serializa a lista de portas de volta para uma string JSON
                                     string portsJson = JsonSerializer.Serialize(portsList);
-                                    Console.WriteLine("Lista de portas em formato JSON após remoção: " + portsJson);
+                                    Console.WriteLine("Lista de portas em formato JSON apos remoção: " + portsJson);
 
-                                    // Agora você pode usar a string JSON da lista de portas conforme necessário
+                                    
                                 }
                                 else
                                 {
-                                    Console.WriteLine("Nenhum objeto adicionado à lista de portas após a remoção.");
+                                    Console.WriteLine("Nenhum objeto adicionado a lista de portas apos a remocao.");
                                 }
-
-                                // Agora você pode usar a string JSON da lista de portas conforme necessário
+                                
                             }
-
                             else
                             {
-                                Console.WriteLine("A propriedade 'ports' em 'metadata' não é um array.");
+                                Console.WriteLine("A propriedade 'ports' em 'metadata' nao é um array.");
                             }
                         }
                         else
@@ -439,7 +437,7 @@ namespace PortController
                     }
                     else
                     {
-                        Console.WriteLine("O objeto JSON não possui a propriedade 'metadata' ou é nulo/vazio.");
+                        Console.WriteLine("O objeto JSON nao possui a propriedade 'metadata' ou é nulo.");
                     }
 
 
@@ -684,12 +682,12 @@ namespace PortController
                 }
                 else
                 {
-                    throw new Exception("Failed to start process.");
+                    throw new Exception("Falha ao comecar o processo.");
                 }
             }
             catch (Exception ex)
             {
-                throw new Exception($"Failed to execute command: {command}. {ex.Message}");
+                throw new Exception($"Erro a executar o comando: {command}. {ex.Message}");
             }
 
 
@@ -698,4 +696,6 @@ namespace PortController
 
 
     }
+
+
 }
