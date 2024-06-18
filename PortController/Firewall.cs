@@ -160,6 +160,98 @@ namespace PortController
 
         // Caminho -> /var/lib/lxd/unix.socket
 
+        /*
+         
+         //NÃO TESTADO
+        // ver portas abertas num IP que foi atribuido a um container (as portas são mapeadas 1:1)
+        private List<dynamic> Lxd_api_nat_ip_ports(string bridge_interface, string external_ip)
+        {
+            string portsJson = string.Empty;
+            List<dynamic> portsList = new List<dynamic>();
+
+            try
+            {
+                // caminho do Unix socket
+                string socketPath = "/var/lib/lxd/unix.socket";
+
+                // Criar unix socket
+                using (var socket = new Socket(AddressFamily.Unix, SocketType.Stream, ProtocolType.Unspecified))
+                {
+                    // Conectar ao socket
+                    ConnectToUnixSocket(socket, socketPath);
+
+                    // Enviar uma solicitacao HTTP GET
+                    string requestPath1 = $"/1.0/networks/{bridge_interface}/forwards/{external_ip}";
+                    string request1 = $"GET {requestPath1} HTTP/1.1\r\nHost: dummy\r\n\r\n";
+
+                    // Enviar a solicitacao
+                    byte[] requestBytes1 = Encoding.UTF8.GetBytes(request1);
+                    socket.Send(requestBytes1);
+
+                    // Receber resposta do socket
+                    byte[] receiveBuffer = new byte[1024];
+                    int receivedBytes = socket.Receive(receiveBuffer);
+                    string responseData = Encoding.UTF8.GetString(receiveBuffer, 0, receivedBytes);
+                    Console.WriteLine("Response from server: " + responseData);
+
+                    //------ Edicao do JSON ------------------------
+
+                    // Encontra o indice do final dos cabecalhos na resposta
+                    int headersEndIndex = responseData.IndexOf("\r\n\r\n");
+
+                    // Extrai a parte do corpo da resposta (apos o final dos cabecalhos)
+                    string responseBody = responseData.Substring(headersEndIndex + 4);
+
+                    // Analisa o JSON do corpo da resposta
+                    dynamic jsonResponseObject = JsonSerializer.Deserialize<dynamic>(responseBody);
+                    Console.WriteLine("OBJETO JSON: " + jsonResponseObject);
+
+                    // Inicializa metadataElement com um valor padrão
+                    JsonElement metadataElement = default;
+
+                    if (jsonResponseObject is not null && jsonResponseObject.TryGetProperty("metadata", out metadataElement))
+                    {
+                        // Obtem o objeto "metadata"
+                        dynamic metadataObject = metadataElement;
+
+                        // Verifica se "metadata" contem a propriedade "ports"
+                        if (metadataObject.TryGetProperty("ports", out JsonElement portsElement))
+                        {
+                           
+
+                            // Verifica se "ports" é de um array
+                            if (portsElement.ValueKind == JsonValueKind.Array)
+                            {
+                                // Converte o elemento "ports" para uma lista de portas
+                                foreach (var portas in portsElement.EnumerateArray())
+                                {
+                                    portsList.Add(portas);
+                                }
+        
+                            }
+                            else
+                            {
+                                Console.WriteLine("A propriedade 'ports' em 'metadata' nao é um array.");
+                            }
+                        }
+                        else
+                        {
+                            Console.WriteLine("O objeto 'metadata' nao possui a propriedade 'ports'.");
+                        }
+                    }
+                    else
+                    {
+                        Console.WriteLine("O objeto JSON nao possui a propriedade 'metadata' ou e nulo.");
+                    }
+            
+            return portslist;
+
+        }
+
+        */
+
+
+
 
         // Cria associação de portas entre as do host e as de um container para reencaminhar trafego
         private void Lxd_api_forward(string bridge_interface, string sprotocol,string port, string external_ip, string cont_internal_ip, string cont_internal_port) //criar comandos de forward
@@ -646,6 +738,10 @@ namespace PortController
                 Console.WriteLine("reset nat");
                 Lxd_api_forward_reset(sbridge_interface, external_ip);
 
+            }
+            else if (firewall == "lxdapi" && action == "Listports")
+            {
+               // Lxd_api_nat_ip_ports(sbridge_interface, external_ip);
             }
 
         }
