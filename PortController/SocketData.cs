@@ -101,6 +101,19 @@ namespace PortController
                 clientSocket.Send(responseBytes);
                 */
             }
+            if (receivedData.Type == "host" && receivedData.Action == "Getipports") // ver as portas de um ip externo associado a um container
+            {
+                List<dynamic> portsList;
+
+                Firewall fwi = new Firewall();
+                portsList = fwi.Lxd_api_nat_ip_ports(sexternal_ip);
+
+                string responseJson = JsonConvert.SerializeObject(portsList);
+                byte[] responseBytes = Encoding.UTF8.GetBytes(responseJson);
+                clientSocket.Send(responseBytes);
+
+
+            }
             if (receivedData.Type == "host" && receivedData.Action == "ClosePort" || receivedData.Type == "host" && receivedData.Action == "OpenPort" || receivedData.Type == "host" && receivedData.Action == "ExecCmd")
             {
 

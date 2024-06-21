@@ -160,12 +160,13 @@ namespace PortController
 
         // Caminho -> /var/lib/lxd/unix.socket
 
-        /*
+        
          
          //NÃO TESTADO
         // ver portas abertas num IP que foi atribuido a um container (as portas são mapeadas 1:1)
-        private List<dynamic> Lxd_api_nat_ip_ports(string bridge_interface, string external_ip)
+        public List<dynamic> Lxd_api_nat_ip_ports(string external_ip)
         {
+            string bi = bridge_interface;
             string portsJson = string.Empty;
             List<dynamic> portsList = new List<dynamic>();
 
@@ -181,7 +182,7 @@ namespace PortController
                     ConnectToUnixSocket(socket, socketPath);
 
                     // Enviar uma solicitacao HTTP GET
-                    string requestPath1 = $"/1.0/networks/{bridge_interface}/forwards/{external_ip}";
+                    string requestPath1 = $"/1.0/networks/{bi}/forwards/{external_ip}";
                     string request1 = $"GET {requestPath1} HTTP/1.1\r\nHost: dummy\r\n\r\n";
 
                     // Enviar a solicitacao
@@ -217,7 +218,7 @@ namespace PortController
                         // Verifica se "metadata" contem a propriedade "ports"
                         if (metadataObject.TryGetProperty("ports", out JsonElement portsElement))
                         {
-                           
+
 
                             // Verifica se "ports" é de um array
                             if (portsElement.ValueKind == JsonValueKind.Array)
@@ -227,7 +228,7 @@ namespace PortController
                                 {
                                     portsList.Add(portas);
                                 }
-        
+
                             }
                             else
                             {
@@ -243,12 +244,19 @@ namespace PortController
                     {
                         Console.WriteLine("O objeto JSON nao possui a propriedade 'metadata' ou e nulo.");
                     }
-            
-            return portslist;
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("Error: " + ex.Message);
+            }
+
+
+            return portsList;
 
         }
 
-        */
+        
 
 
 
@@ -739,10 +747,12 @@ namespace PortController
                 Lxd_api_forward_reset(sbridge_interface, external_ip);
 
             }
+            /*
             else if (firewall == "lxdapi" && action == "Listports")
             {
                // Lxd_api_nat_ip_ports(sbridge_interface, external_ip);
             }
+            */
 
         }
 
