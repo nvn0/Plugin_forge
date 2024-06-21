@@ -618,7 +618,7 @@ namespace PortController
                     Console.WriteLine("A ENVIAR: " + requestBody);
 
                     // Construir a solicitação PUT
-                    string requestPath2 = $"/1.0/networks/lxdbr0/forwards/{external_ip}";
+                    string requestPath2 = $"/1.0/networks/{bridge_interface}/forwards/{external_ip}";
                     string request2 = $"PUT {requestPath2} HTTP/1.1\r\nHost: dummy\r\nContent-Length: {Encoding.UTF8.GetBytes(requestBody).Length}\r\n\r\n{requestBody}";
 
                     // Enviar a solicitação
