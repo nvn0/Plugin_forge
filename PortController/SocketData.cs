@@ -11,6 +11,8 @@ using System.ComponentModel.Design;
 using static System.Collections.Specialized.BitVector32;
 using System.Data;
 using static System.Formats.Asn1.AsnWriter;
+using System.Text.Json;
+
 
 
 namespace PortController
@@ -107,10 +109,14 @@ namespace PortController
 
                 Firewall fwi = new Firewall();
                 portsList = fwi.Lxd_api_nat_ip_ports(sexternal_ip);
+                Console.WriteLine(portsList);
 
-                string responseJson = JsonConvert.SerializeObject(portsList);
-                byte[] responseBytes = Encoding.UTF8.GetBytes(responseJson);
-                clientSocket.Send(responseBytes);
+                string requestBody = JsonSerializer.Serialize(portsList);
+                byte[] requestBytes = Encoding.UTF8.GetBytes(requestBody);
+
+
+                Console.WriteLine(requestBytes);
+                clientSocket.Send(requestBytes);
 
 
             }
