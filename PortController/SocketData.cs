@@ -11,7 +11,7 @@ using System.ComponentModel.Design;
 using static System.Collections.Specialized.BitVector32;
 using System.Data;
 using static System.Formats.Asn1.AsnWriter;
-using System.Text.Json;
+using JsonSerializer = System.Text.Json.JsonSerializer; // Alias para o JsonSerializer
 
 
 
