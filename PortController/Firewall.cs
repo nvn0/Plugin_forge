@@ -40,7 +40,7 @@ namespace PortController
             ExecuteCommand($"iptables -A  INPUT -p {protocol} --dport {port} -j ACCEPT && /sbin/iptables-save");
         }
 
-        private void ClosePort( string protocol, string port)
+        private void ClosePort(string protocol, string port)
         {
             ExecuteCommand($"iptables -A  INPUT -p {protocol} --dport {port} -j DROP && /sbin/iptables-save");
         }
